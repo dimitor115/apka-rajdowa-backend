@@ -1,6 +1,6 @@
 import * as express from 'express';
-import resultHandler from '../middlewares/result-handler';
-import examplesService from '../services/examples-service';
+import resultHandler from '../middlewares/resultHandler';
+import examplesService from '../services/ExamplesService';
 
 const router = express.Router();
 
