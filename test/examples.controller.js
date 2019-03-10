@@ -1,8 +1,8 @@
-import chai from 'chai';
-import request from 'supertest';
-import Server from '../server';
+import chai from 'chai'
+import request from 'supertest'
+import Server from '../server'
 
-const { expect } = chai;
+const { expect } = chai
 
 describe('Examples', () => {
   it('should get all examples', () => request(Server)
@@ -11,8 +11,8 @@ describe('Examples', () => {
     .then(r => {
       expect(r.body)
         .to.be.an.an('array')
-        .of.length(2);
-    }));
+        .of.length(2)
+    }))
 
   it('should add a new example', () => request(Server)
     .post('/api/v1/examples')
@@ -22,8 +22,8 @@ describe('Examples', () => {
       expect(r.body)
         .to.be.an.an('object')
         .that.has.property('name')
-        .equal('test');
-    }));
+        .equal('test')
+    }))
 
   it('should get an example by id', () => request(Server)
     .get('/api/v1/examples/2')
@@ -32,6 +32,6 @@ describe('Examples', () => {
       expect(r.body)
         .to.be.an.an('object')
         .that.has.property('name')
-        .equal('test');
-    }));
-});
+        .equal('test')
+    }))
+})

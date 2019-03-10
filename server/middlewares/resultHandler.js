@@ -1,6 +1,6 @@
-import log from '../common/logger';
-import Response from '../common/utils/Response';
-import Exception from '../common/utils/Exception';
+import log from '../common/logger'
+import Response from '../common/utils/Response'
+import Exception from '../common/utils/Exception'
 
 // This is simple result handler and will be extend in future
 export default function (func) {
@@ -10,10 +10,10 @@ export default function (func) {
         res.status(result.httpCode)
           .json({
             body: result.body,
-            messages: result.messages,
-          });
+            messages: result.messages
+          })
       } else {
-        res.json(result);
+        res.json(result)
       }
     })
     .catch(error => {
@@ -21,12 +21,12 @@ export default function (func) {
         error.messages.forEach(msg => log.error(msg))
         res.status(error.httpCode)
           .send({
-            messages: error.messages,
-          });
+            messages: error.messages
+          })
       } else {
-        log.error(error);
+        log.error(error)
         res.status(500)
-          .send(error);
+          .send(error)
       }
-    });
+    })
 }
