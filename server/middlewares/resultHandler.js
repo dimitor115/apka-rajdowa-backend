@@ -9,7 +9,7 @@ export default function (func) {
       if (result instanceof Response) {
         res.status(result.httpCode)
           .json({
-            body: result.body,
+            data: result.data,
             messages: result.messages
           })
       } else {
