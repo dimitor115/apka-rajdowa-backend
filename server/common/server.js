@@ -6,6 +6,7 @@ import * as os from 'os'
 import cookieParser from 'cookie-parser'
 import swaggerify from './swagger'
 import l from './logger'
+import connectDb from '../db/connectDb'
 
 const app = new Express()
 
@@ -21,13 +22,15 @@ export default class ExpressServer {
 
   router(routes) {
     // swaggerify(app, routes);
+
     routes(app)
     return this
   }
 
-  listen(port = process.env.PORT) {
+  listen(port = process.env.PORT, mongoUrl = process.env.MONGO_URL) {
     const welcome = p => () => l.info(`up and running in ${process.env.NODE_ENV || 'development'} @: ${os.hostname()} on port: ${p}}`)
     http.createServer(app).listen(port, welcome(port))
+    connectDb(mongoUrl)
     return app
   }
 }
