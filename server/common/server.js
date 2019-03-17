@@ -5,7 +5,6 @@ import * as http from 'http'
 import * as os from 'os'
 import cookieParser from 'cookie-parser'
 import passport from '../auth/authStrategies'
-import swaggerify from './swagger'
 import l from './logger'
 import connectDb from '../db/connectDb'
 
@@ -19,7 +18,7 @@ export default class ExpressServer {
     app.use(bodyParser.urlencoded({ extended: true, limit: process.env.REQUEST_LIMIT || '100kb' }))
     app.use(cookieParser(process.env.SESSION_SECRET))
     app.use(Express.static(`${root}/public`))
-    // app.use(passport.initialize())
+    app.use(passport.initialize())
   }
 
   router(routes) {
