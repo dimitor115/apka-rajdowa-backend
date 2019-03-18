@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 
-export default user => jwt.sign(
+const createToken = user => jwt.sign(
   {
     sub: user.email,
     user: {
@@ -12,3 +12,5 @@ export default user => jwt.sign(
   },
   process.env.PASSPORT_KEY
 )
+
+export default createToken

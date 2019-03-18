@@ -10,14 +10,14 @@ export default new JWTStrategy({
   User.findOne({ googleId: jwtPayload.user.googleId })
     .then(foundUser => {
       if (!foundUser) {
-        log.error('User not found')
-        return cb('User not found', null)
+        log.error('Authorization - user not found')
+        return cb(null, null, 'Unauthorized')
       }
-      log.info(`Found user ${foundUser.googleId}`)
-      return cb(null, foundUser, 'User was created')
+      log.info(`'Authorization - user' ${foundUser.googleId} created`)
+      return cb(null, foundUser, `Authorization - user ${foundUser.googleId} created`)
     })
     .catch(err => {
-      log.error('Problem with founding a user')
-      cb(err, null, 'Unauthenticated')
+      log.error('Authorization - database error')
+      cb(err, null, 'Unauthorized')
     })
 })
