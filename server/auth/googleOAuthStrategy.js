@@ -1,5 +1,4 @@
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
-import '../common/env'
 import log from '../common/logger'
 import { User } from '../models'
 

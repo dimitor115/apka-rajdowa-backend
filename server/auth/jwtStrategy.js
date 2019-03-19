@@ -1,5 +1,4 @@
 import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt'
-import '../common/env'
 import log from '../common/logger'
 import { User } from '../models'
 
