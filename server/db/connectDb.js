@@ -7,7 +7,7 @@ const connect = url => {
     .on('connected', () => log.info('Connected to the DB'))
     .on('error', () => log.error('Error with database connection'))
     .on('disconnected', connect)
-  return mongoose.connect(url, { keepAlive: 1, useNewUrlParser: true })
+  return mongoose.connect(url, { keepAlive: true, useNewUrlParser: true })
 }
 
 export default connect
