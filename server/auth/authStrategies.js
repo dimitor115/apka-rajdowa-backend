@@ -1,8 +1,8 @@
 import passport from 'passport'
-import googleStategy from './googleOAuthStrategy'
+import googleStrategy from './googleOAuthStrategy'
 import jwtStrategy from './jwtStrategy'
 
-passport.use(googleStategy)
+passport.use(googleStrategy)
 passport.use(jwtStrategy)
 
 export default passport
