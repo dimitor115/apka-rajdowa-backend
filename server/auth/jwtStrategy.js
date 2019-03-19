@@ -6,18 +6,18 @@ import { User } from '../models'
 export default new JWTStrategy({
   jwtFromRequest: ExtractJwt.fromHeader('authorization'),
   secretOrKey: process.env.PASSPORT_KEY
-}, (jwtPayload, cb) => {
+}, (jwtPayload, callback) => {
   User.findOne({ googleId: jwtPayload.user.googleId })
     .then(foundUser => {
       if (!foundUser) {
         log.error('Authorization - user not found')
-        return cb(null, null, 'Unauthorized')
+        return callback(null, null, 'Unauthorized')
       }
       log.info(`'Authorization - user' ${foundUser.googleId} created`)
-      return cb(null, foundUser, `Authorization - user ${foundUser.googleId} created`)
+      return callback(null, foundUser, `Authorization - user ${foundUser.googleId} created`)
     })
     .catch(err => {
       log.error('Authorization - database error')
-      cb(err, null, 'Unauthorized')
+      callback(err, null, 'Unauthorized')
     })
 })
