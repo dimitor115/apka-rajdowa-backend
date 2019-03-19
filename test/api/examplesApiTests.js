@@ -1,6 +1,7 @@
 import chai from 'chai'
+import { describe } from 'mocha'
 import request from 'supertest'
-import Server from '../server'
+import Server from '../../server'
 
 const { expect } = chai
 
@@ -9,7 +10,7 @@ describe('Examples', () => {
     .get('/api/v1/examples')
     .expect('Content-Type', /json/)
     .then(r => {
-      expect(r.body)
+      expect(r.body.data)
         .to.be.an.an('array')
         .of.length(2)
     }))
@@ -19,7 +20,7 @@ describe('Examples', () => {
     .send({ name: 'test' })
     .expect('Content-Type', /json/)
     .then(r => {
-      expect(r.body)
+      expect(r.body.data)
         .to.be.an.an('object')
         .that.has.property('name')
         .equal('test')
@@ -29,7 +30,7 @@ describe('Examples', () => {
     .get('/api/v1/examples/2')
     .expect('Content-Type', /json/)
     .then(r => {
-      expect(r.body)
+      expect(r.body.data)
         .to.be.an.an('object')
         .that.has.property('name')
         .equal('test')
