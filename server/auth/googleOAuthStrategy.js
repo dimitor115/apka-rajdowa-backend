@@ -7,27 +7,29 @@ export default new GoogleStrategy({
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   callbackURL: process.env.GOOGLE_OAUTH_CALLBACK
 }, async (accessToken, refreshToken, profile, callback) => {
-  User.findOne({ googleId: profile.id })
+  User.findOne({ google: { googleId: profile.id } })
     .then(foundUser => {
       if (!foundUser) {
         const newUser = {
-          googleId: profile.id,
-          displayName: profile.displayName,
-          email: profile._json.email,
-          photoUrl: profile._json.picture,
-          gender: profile._json.gender
+          google: {
+            googleId: profile.id,
+            displayName: profile.displayName,
+            email: profile._json.email,
+            photoUrl: profile._json.picture,
+            gender: profile._json.gender
+          }
         }
         return User.create(newUser)
           .then(() => {
-            log.info(`Authentication - user created - ${newUser.googleId}`)
+            log.info(`Authentication - user created - ${newUser.google.googleId}`)
             callback(null, newUser, 201)
           })
           .catch(err => {
-            log.error(`Authentication - error user created - ${newUser.googleId}`)
+            log.error(`Authentication - error user created - ${newUser.google.googleId}`)
             callback(err, null)
           })
       }
-      log.info(`Authentication - user found - ${foundUser.googleId}`)
+      log.info(`Authentication - user found - ${foundUser.google.googleId}`)
       return callback(null, foundUser, 200)
     })
     .catch(err => {

@@ -2,10 +2,10 @@ import jwt from 'jsonwebtoken'
 
 const createToken = user => jwt.sign(
   {
-    sub: user.email,
+    sub: user.google.googleId,
     user: {
-      email: user.email,
-      googleId: user.googleId
+      email: user.google.email,
+      googleId: user.google.googleId
     },
     iat: new Date().getTime(),
     expiresIn: process.env.EXP_TOKEN
