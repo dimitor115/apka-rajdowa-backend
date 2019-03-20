@@ -7,7 +7,7 @@ export default new GoogleStrategy({
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   callbackURL: process.env.GOOGLE_OAUTH_CALLBACK
 }, async (accessToken, refreshToken, profile, callback) => {
-  User.findOne({ google: { googleId: profile.id } })
+  User.findOne({ 'google.googleId': profile.id })
     .then(foundUser => {
       if (!foundUser) {
         const newUser = {
@@ -20,9 +20,9 @@ export default new GoogleStrategy({
           }
         }
         return User.create(newUser)
-          .then(() => {
+          .then(createdUser => {
             log.info(`Authentication - user created - ${newUser.google.googleId}`)
-            callback(null, newUser, 201)
+            callback(null, createdUser, 201)
           })
           .catch(err => {
             log.error(`Authentication - error user created - ${newUser.google.googleId}`)

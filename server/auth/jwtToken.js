@@ -2,8 +2,9 @@ import jwt from 'jsonwebtoken'
 
 const createToken = user => jwt.sign(
   {
-    sub: user.google.googleId,
+    sub: user._id,
     user: {
+      id: user._id,
       email: user.google.email,
       googleId: user.google.googleId
     },

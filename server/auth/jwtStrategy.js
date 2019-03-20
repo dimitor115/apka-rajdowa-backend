@@ -6,7 +6,7 @@ export default new JWTStrategy({
   jwtFromRequest: ExtractJwt.fromHeader('authorization'),
   secretOrKey: process.env.PASSPORT_KEY
 }, (jwtPayload, callback) => {
-  User.findOne({ google: { googleId: jwtPayload.user.google.googleId } })
+  User.findOne({ _id: jwtPayload.user.id })
     .then(foundUser => {
       if (!foundUser) {
         log.error('Authorization - user not found')
