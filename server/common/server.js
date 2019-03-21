@@ -6,7 +6,6 @@ import * as os from 'os'
 import cookieParser from 'cookie-parser'
 import passport from '../auth/authStrategies'
 import l from './logger'
-import './env'
 import connectDb from '../db/connectDb'
 
 const app = new Express()
