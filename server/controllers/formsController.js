@@ -6,45 +6,59 @@ import { Form } from '../models'
 
 const router = express.Router()
 
-// router.get('/', resultHandler(() => examplesService.all()))
-// router.get('/:id', resultHandler(req => examplesService.byId(req.params.id)))
-// router.post('/', resultHandler(req => examplesService.create(req.body.name)))
+router.post('/schemas', (req, res) => {
+    // const formSchema = mongoose.Schema(req.body.structure, {
+    //     versionKey: false,
+    //     collection: `form_${req.body.name}`
+    // })
+    // const formsModel = mongoose.model(`form_${req.body.name}`, formSchema)
 
-router.post('/', (req, res) => {
-    const formSchema = mongoose.Schema(req.body.structure, {
-        versionKey: false,
-        collection: `form_${req.body.name}`
-    })
-    const formsModel = mongoose.model(`form_${req.body.name}`, formSchema)
-
-    formsModel.create({
-        name: 'Marek',
-        phone: 505380563,
-        index: '238481'
-    })
+    // formsModel.create({
+    //     name: 'Marek',
+    //     phone: 505380563,
+    //     index: '238481',
+    //     isPaid: ["oplacone", "weryfikacja"],
+    //     status: 'test2'
+    // })
+    // .then(result => console.log('result', result))
+    // .catch(err=> console.log('err', err))
 
     Form.create(req.body)
-        .then(result => {
-            console.log(result)
-            res.status(200).send('Udalo sie')
+        .then(newSchema => {
+            mongoose.connection.createCollection(`form_${newSchema._id}`)
+                .then(() => {
+                    res.status(200).send({ id: newSchema._id })
+                })
         })
         .catch(err => {
-            console.log(err)
-            res.status(500).send('Cos sie zjebalo')
+            res.status(500).send(err)
+        })
+
+
+})
+
+router.get('/schemas/:id', (req, res) => {
+    Form.findOne({ _id: req.params.id })
+        .then(result => {
+            res.status(200).send(result)
+        })
+        .catch(err => {
+            res.status(500).send(err)
         })
 })
 
-router.get('/id/:name', (req, res) => {
-    Form.findOne({ name: req.params.name })
-        .then(result => {
-            const formSchema = mongoose.Schema(result.structure, {
+router.get('/', (req, res) => {
+    Form.findOne({ _id: req.headers.form_id })
+        .then(foundSchema => {
+            const formSchema = mongoose.Schema(foundSchema.structure, {
                 versionKey: false,
-                collection: `form_${result.name}`
+                collection: `form_${foundSchema.name}`
             })
 
-            const formsModel = mongoose.model(`form_${result.name}`, formSchema)
+            const formModel = mongoose.modelNames().includes(`form_${foundSchema.name}`)
+                ? mongoose.model(`form_${foundSchema.name}`) : mongoose.model(`form_${foundSchema.name}`, formSchema)
 
-            formsModel.find({})
+            formModel.find({})
                 .then(result => {
                     res.status(200).send(result)
                 })
@@ -53,26 +67,43 @@ router.get('/id/:name', (req, res) => {
                 })
         })
         .catch(err => {
-            console.log(err)
-            res.status(500).send('Cos sie zjebalo')
+            res.status(500).send(err)
         })
 })
 
-router.get('/models', (req, res) => {
-    mongoose.connection.createCollection('test123')
-    // console.log(mongoose.connection.collections.createCollections('blebleble'))
-    res.send('')
-})
+router.post('/', (req, res) => {
+    Form.findOne({ _id: req.headers.form_id })
+        .then(foundSchema => {
+            const formSchema = mongoose.Schema(foundSchema.structure, {
+                versionKey: false,
+                collection: `form_${foundSchema.name}`
+            })
 
-router.get('/', (req, res) => {
-    Form.findOne({ _id: '5c96ba68d4259d57344a46f0' })
-        .then(result => {
-            res.status(200).send(result)
+            const formModel = mongoose.modelNames().includes(`form_${foundSchema.name}`)
+                ? mongoose.model(`form_${foundSchema.name}`) : mongoose.model(`form_${foundSchema.name}`, formSchema)
+
+            formModel.create(req.body)
+                .then(result => {
+                    res.status(201).send(result)
+                })
+                .catch(err => {
+                    res.status(500).send(err)
+                })
         })
         .catch(err => {
-            console.log(err)
-            res.status(500).send('Cos sie zjebalo')
+            res.status(500).send(err)
         })
 })
+
+// router.get('/models', (req, res) => {
+//     mongoose.connection.createCollection('test123')
+//     .then(result => console.log('result', result))
+//     .catch(err => console.log('err',err))
+//     // mongoose.connection.collection('form_rajd_wiosenny').findOne({}, (err, result) => console.log(result))
+//         // .then(result => console.log(result))
+//     // console.log(mongoose.connection.collections.createCollections('blebleble'))
+//     // res.send('')
+// })
+
 
 export default router
