@@ -1,5 +1,6 @@
 import eventModel from '../models/event'
 import Response from '../common/utils/Response'
+import Exception from '../common/utils/Exception'
 import logger from '../common/logger'
 
 class EventsService {
@@ -13,15 +14,22 @@ class EventsService {
 
   async delete(_id) {
     logger.info(`Deleting event with id : ${_id}`)
-    return new Response(
-      await eventModel.findOneAndDelete({ _id })
-    )
+    const result = await eventModel.findOneAndDelete({ _id })
+    if (result == null) {
+      throw new Exception(`Event with id ${_id} doesn't exist`)
+    } else {
+      return new Response(result)
+    }
   }
 
   async update(_id, event) {
     logger.info(`Updating event with id ${_id}`)
     const result = await eventModel.findOneAndUpdate({ _id }, event, { new: true })
-    return new Response(result)
+    if (result == null) {
+      throw new Exception(`Event with id ${_id} doesn't exist`)
+    } else {
+      return new Response(result)
+    }
   }
 
   async findAll(organisationId) {

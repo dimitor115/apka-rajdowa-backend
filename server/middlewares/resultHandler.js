@@ -23,6 +23,11 @@ export default function (func) {
           .send({
             messages: error.messages
           })
+      } else if (error.hasOwnProperty('name') && error.name === 'ValidationError') {
+        res.status(400)
+          .send({
+            messages: [error.message]
+          })
       } else {
         log.error(error)
         res.status(500)

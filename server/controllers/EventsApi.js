@@ -7,9 +7,9 @@ const router = express.Router()
 // TODO: endpoint do dodawania loga
 
 router.get('/all/:organisationId', resultHandler(req => eventsService.findAll(req.params.organisationId)))
-router.post('/', resultHandler(req => EventsService.add(req.body)))
-router.put('/:id', resultHandler(req => EventsService.update(req.params.id, req.body)))
-router.delete('/:id', resultHandler(req => EventsService.delete(req.params.id)))
+router.post('/', resultHandler(req => eventsService.add(req.body)))
+router.put('/:id', resultHandler(req => eventsService.update(req.params.id, req.body)))
+router.delete('/:id', resultHandler(req => eventsService.delete(req.params.id)))
 router.get('/email-aliases', resultHandler(() => eventsService.findAllEmailAliases()))
 
 export default router
