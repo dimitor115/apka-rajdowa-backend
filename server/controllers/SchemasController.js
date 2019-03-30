@@ -1,54 +1,29 @@
 import * as express from 'express'
 import mongoose from 'mongoose'
-// import resultHandler from '../middlewares/resultHandler'
-// import examplesService from '../services/ExamplesService'
-import { Form } from '../models'
+
+import resultHandler from '../middlewares/resultHandler'
+
+import { Schema } from '../models'
+import { SchemasService } from '../services'
 
 const router = express.Router()
 
-router.post('/schemas', (req, res) => {
-    // const formSchema = mongoose.Schema(req.body.structure, {
-    //     versionKey: false,
-    //     collection: `form_${req.body.name}`
-    // })
-    // const formsModel = mongoose.model(`form_${req.body.name}`, formSchema)
+router.post('/', resultHandler(req => SchemasService.create(req.body.name, req.body.schema)))
+router.get('/:id/public', resultHandler(req => SchemasService.getPublic(req.params.id)))
+router.get('/:id/private', resultHandler(req => SchemasService.getPrivate(req.params.id)))
 
-    // formsModel.create({
-    //     name: 'Marek',
-    //     phone: 505380563,
-    //     index: '238481',
-    //     isPaid: ["oplacone", "weryfikacja"],
-    //     status: 'test2'
-    // })
-    // .then(result => console.log('result', result))
-    // .catch(err=> console.log('err', err))
-
-    Form.create(req.body)
-        .then(newSchema => {
-            mongoose.connection.createCollection(`form_${newSchema._id}`)
-                .then(() => {
-                    res.status(200).send({ id: newSchema._id })
-                })
-        })
-        .catch(err => {
-            res.status(500).send(err)
-        })
-
-
-})
-
-router.get('/schemas/:id', (req, res) => {
-    Form.findOne({ _id: req.params.id })
-        .then(result => {
-            res.status(200).send(result)
-        })
-        .catch(err => {
-            res.status(500).send(err)
-        })
-})
+// router.get('/schemas/:id', (req, res) => {
+//     Schema.findOne({ _id: req.params.id })
+//         .then(result => {
+//             res.status(200).send(result)
+//         })
+//         .catch(err => {
+//             res.status(500).send(err)
+//         })
+// })
 
 router.get('/', (req, res) => {
-    Form.findOne({ _id: req.headers.form_id })
+    Schema.findOne({ _id: req.headers.form_id })
         .then(foundSchema => {
             const formSchema = mongoose.Schema(foundSchema.structure, {
                 versionKey: false,
@@ -72,7 +47,7 @@ router.get('/', (req, res) => {
 })
 
 router.post('/', (req, res) => {
-    Form.findOne({ _id: req.headers.form_id })
+    Schema.findOne({ _id: req.headers.form_id })
         .then(foundSchema => {
             const formSchema = mongoose.Schema(foundSchema.structure, {
                 versionKey: false,
