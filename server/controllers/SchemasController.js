@@ -12,16 +12,6 @@ router.post('/', resultHandler(req => SchemasService.create(req.body.name, req.b
 router.get('/:id/public', resultHandler(req => SchemasService.getPublic(req.params.id)))
 router.get('/:id/private', resultHandler(req => SchemasService.getPrivate(req.params.id)))
 
-// router.get('/schemas/:id', (req, res) => {
-//     Schema.findOne({ _id: req.params.id })
-//         .then(result => {
-//             res.status(200).send(result)
-//         })
-//         .catch(err => {
-//             res.status(500).send(err)
-//         })
-// })
-
 router.get('/', (req, res) => {
     Schema.findOne({ _id: req.headers.form_id })
         .then(foundSchema => {
