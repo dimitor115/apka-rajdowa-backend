@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import l from '../common/logger'
+import qs from 'qs'
 import { Response, Exception } from '../common/utils'
 import { Schema } from '../models'
 import SchemasService from './SchemasService'
@@ -9,8 +9,14 @@ const ACCESS_PUBLIC = 'public'
 const RANGES_ACCESS = [ACCESS_PRIVATE, ACCESS_PUBLIC]
 
 class FormsService {
-    async find(formId, query = {}, fields = { projection: {} }, sortBy = { _id: -1 }) {
-        return mongoose.connection.collection(`form_${formId}`).find(query, fields).sort(sortBy).toArray()
+    async find(formId, query = '') {
+        const parsedQuery = qs.parse(query)
+        const fields = { projection: parsedQuery.fields }
+        const sortBy = parsedQuery.sortBy ? Object.keys(parsedQuery.sortBy)
+            .reduce((aggregate, key) => (
+                { ...aggregate, [key]: parseInt(parsedQuery.sortBy[key], 0) }), {}) : {}
+
+        return mongoose.connection.collection(`form_${formId}`).find(parsedQuery.query, fields).sort(sortBy).toArray()
             .then(result => new Response(result, 200))
             .catch(err => new Response(err, 500))
     }
@@ -23,8 +29,9 @@ class FormsService {
     }
 
     async edit(formId, query, data) {
+        const parsedQuery = qs.parse(query)
         const formModel = await this.getModel(formId, ACCESS_PRIVATE)
-        const result = await formModel.updateMany({ _id: query.id }, data)
+        const result = await formModel.updateMany(parsedQuery, data)
 
         return new Response(result, 201)
     }
