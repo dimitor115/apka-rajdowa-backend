@@ -4,9 +4,10 @@ import resultHandler from '../middlewares/resultHandler'
 import { FormsService } from '../services'
 
 const router = express.Router()
-
-router.post('/', resultHandler(req => FormsService.createPrivate(req.headers.form_id, req.body)))
-router.post('/form', resultHandler(req => FormsService.createPublic(req.headers.form_id, req.body)))
-router.get('/:id', resultHandler(req => FormsService.get(req.params.id, req.query)))
+//TODO: zabezpieczyc routy
+router.post('/', resultHandler(req => FormsService.create(req.headers.form_id, 'private', req.body)))
+router.post('/form', resultHandler(req => FormsService.create(req.headers.form_id, 'public', req.body)))
+router.patch('/', resultHandler(req => FormsService.edit(req.headers.form_id, req.query, req.body)))
+router.get('/', resultHandler(req => FormsService.find(req.headers.form_id, req.query)))
 
 export default router

@@ -3,42 +3,22 @@ import l from '../common/logger'
 import Response from '../common/utils/Response'
 import { Schema } from '../models'
 
-//TODO: dodac logi
 class SchemasService {
     async create(name, schema) {
-        l.info(`${this.constructor.name}.create()`)
-
-        //TODO: validacja schemy
-        //pola obowiazkowe
-        //zawartosc pol - type
-        //pola nadmiarowe nie wykorzystywane w apce
-        //unikalnosc elementow
-        //TODO: przypisanie schemy do wydarzenia
-
-        return Schema.create({ name, structure: schema })
-            .then(newSchema => mongoose.connection.createCollection(`form_${newSchema._id}`)
-                .then(() => new Response({ id: newSchema._id }, 201)))
-
-            .catch(err => new Response(err, 500))
+        const newSchema = await Schema.create({ name, structure: schema })
+        await mongoose.connection.createCollection(`form_${newSchema._id}`)
+        return new Response({ id: newSchema._id }, 201)
     }
 
     async getPublic(id) {
-        return Schema.findOne({ _id: id })
-            .then(foundSchema => {
-                const filteredSchema = this.createPublicSchema(foundSchema.structure)
-                return new Response({ name: foundSchema.name, structure: filteredSchema }, 200)
-            })
-            .catch(err => new Response(err, 500))
+        const schema = await Schema.findOne({ _id: id })
+        schema.structure = this.createPublic(schema.structure)
+        return new Response({ schema }, 200)
     }
 
     async getPrivate(id) {
-        return Schema.findOne({ _id: id })
-            .then(result => new Response(result, 200))
-            .catch(err => new Response(err, 500))
-    }
-
-    async valid(schema) {
-        return new Response(schema, 200)
+        const schema = await Schema.findOne({ _id: id })
+        return schema
     }
 
     createPublic(schema) {
