@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import Response from '../common/utils/Response'
+import { Response, Exception } from '../common/utils'
 import { Schema } from '../models'
 
 class SchemasService {
@@ -11,13 +11,19 @@ class SchemasService {
 
     async getPublic(id) {
         const schema = await Schema.findOne({ _id: id })
+
+        if (!schema) {
+            throw new Exception(`Not found schema by id: ${id}`, 404)
+        }
+
         schema.structure = this.createPublic(schema.structure)
-        return new Response({ schema }, 200)
+
+        return new Response(schema, 200)
     }
 
     async getPrivate(id) {
         const schema = await Schema.findOne({ _id: id })
-        return schema
+        return new Response(schema, 200)
     }
 
     createPublic(schema) {
