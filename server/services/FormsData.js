@@ -10,15 +10,17 @@ const RANGES_ACCESS = [ACCESS_PRIVATE, ACCESS_PUBLIC]
 
 class FormsService {
     async find(formId, query = '') {
+        await this.checkCollectionExists(formId)
+
         const parsedQuery = qs.parse(query)
         const fields = { projection: parsedQuery.fields }
-        const sortBy = parsedQuery.sortBy ? Object.keys(parsedQuery.sortBy)
+        const sortBy = parsedQuery.sortBy ? await Object.keys(parsedQuery.sortBy)
             .reduce((aggregate, key) => (
                 { ...aggregate, [key]: parseInt(parsedQuery.sortBy[key], 0) }), {}) : {}
 
-        return mongoose.connection.collection(`form_${formId}`).find(parsedQuery.query, fields).sort(sortBy).toArray()
-            .then(result => new Response(result, 200))
-            .catch(err => new Response(err, 500))
+
+        const result = await mongoose.connection.collection(`form_${formId}`).find(parsedQuery.query, fields).sort(sortBy).toArray()
+        return new Response(result, 200)
     }
 
     async create(formId, type, data) {
@@ -37,6 +39,8 @@ class FormsService {
     }
 
     async getModel(formId, type = ACCESS_PUBLIC) {
+        await this.checkCollectionExists(formId)
+
         if (!RANGES_ACCESS.includes(type)) {
             throw (new Exception(`Error type range access. Available options: ${RANGES_ACCESS.join(', ')}`))
         }
@@ -47,6 +51,7 @@ class FormsService {
 
         const schema = await Schema.findOne({ _id: formId })
 
+
         if (type === ACCESS_PUBLIC) {
             schema.structure = await SchemasService.createPublic(schema.structure)
         }
@@ -56,6 +61,13 @@ class FormsService {
             collection: `form_${formId}`
         })
         return mongoose.model(`form_${formId}_${type}`, formSchema)
+    }
+
+    async checkCollectionExists(formId) {
+        const collections = await mongoose.connection.db.listCollections().toArray()
+        if (collections.findIndex(collection => collection.name === `form_${formId}`) === -1) {
+            throw new Exception(`Not found collection form_${formId}`, 404)
+        }
     }
 }
 
