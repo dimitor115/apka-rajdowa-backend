@@ -1,5 +1,4 @@
 import mongoose from 'mongoose'
-import l from '../common/logger'
 import Response from '../common/utils/Response'
 import { Schema } from '../models'
 
