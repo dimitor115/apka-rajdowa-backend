@@ -1,10 +1,25 @@
+import chai from 'chai'
+import { describe } from 'mocha'
+import request from 'request'
+import url from 'apiUrl'
+const { expect } = chai
 
-// const exampleEvent = {
-//   name: 'Rajd wiosenny',
-//   emailAlias: 'rajdW8',
-//   startDate: '2018-04-12',
-//   endDate: '2018-04-15'
-// }
+describe('Events Api tests', () => {
+  it('should get all events for organisation', () => {
+    const organisationId = 'w1'
+    request.get({
 
-// osobny endpoint do sprawdzania aliasów email
-//
+    })
+  })
+
+  // it('should add a new example', () => request(Server)
+  //   .post('/api/v1/examples')
+  //   .send({ name: 'test' })
+  //   .expect('Content-Type', /json/)
+  //   .then(r => {
+  //     expect(r.body.data)
+  //       .to.be.an.an('object')
+  //       .that.has.property('name')
+  //       .equal('test')
+  //   }))
+})
