@@ -22,10 +22,9 @@ class ParticipantsService {
             const result = await mongoose.connection.collection(`form_${formId}`).find(parsedQuery.query, fields).sort(sortBy).toArray()
             return new Response(result, 200)
         }
-
     }
 
-    async create(formId, type, data) {
+    async add(formId, type, data) {
         const formModel = await this.getModel(formId, type)
         const result = await formModel.create(data)
 
