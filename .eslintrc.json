@@ -19,6 +19,7 @@
       "requireForBlockBody": false
     }],
     "comma-dangle": ["error", "never"],
-    "semi": ["error", "never"]
+    "semi": ["error", "never"],
+    "indent": ["error", 4]
   }
 }
