@@ -1,3 +1,7 @@
- {
-    "ext": "js,json,mjs,yaml,yml"
- }
+{
+  "ignore": [
+    "test/*",
+    "README"
+  ],
+  "ext": "js,json,mjs,yaml,yml"
+}

@@ -1,25 +1,25 @@
 import chai from 'chai'
 import { describe } from 'mocha'
-import request from 'request'
-import url from 'apiUrl'
+import request from 'request-promise-native'
+import url from './apiUrl'
+
 const { expect } = chai
 
 describe('Events Api tests', () => {
-  it('should get all events for organisation', () => {
+  it('should get all events for organisation', async () => {
+    // given
     const organisationId = 'w1'
-    request.get({
-
-    })
+    // when
+    const result = await fetchAllStudents(organisationId)
+    // then
+    expect(result.data.length).to.be.at.least(1)
+    expect(result.data[0].organisationId).to.equal(organisationId)
   })
-
-  // it('should add a new example', () => request(Server)
-  //   .post('/api/v1/examples')
-  //   .send({ name: 'test' })
-  //   .expect('Content-Type', /json/)
-  //   .then(r => {
-  //     expect(r.body.data)
-  //       .to.be.an.an('object')
-  //       .that.has.property('name')
-  //       .equal('test')
-  //   }))
 })
+
+async function fetchAllStudents(organisationId) {
+  return request({
+    uri: url(`events/all/${organisationId}`),
+    json: true
+  })
+}
