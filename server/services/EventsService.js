@@ -6,6 +6,7 @@ import logger from '../common/logger'
 class EventsService {
   async add(event) {
     // TODO: sprawdanie czy organizacja o takim id istanieje, jak już bedzie obsługa organizacji
+    // TODO: sprawdzanie poprawności aliasu email
     // TODO: załączenie linku do zdjęcia
     logger.info(`Creating new event with name ${event.name}`)
     const result = await eventModel.create(event)
