@@ -45,8 +45,7 @@ class EventsService {
         const data = await eventModel.find({}, {
             emailAlias: true,
             _id: false
-        })
-            .then(result => result.map(x => x.emailAlias))
+        }).then(result => result.map(x => x.emailAlias))
         return new Response(data)
     }
 }
