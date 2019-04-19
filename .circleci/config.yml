@@ -19,6 +19,9 @@ jobs: # a collection of steps
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - ./node_modules
+      - run: # run lint
+          name: lint
+          command: npm run lint
       - run: # run tests
           name: test
           command: npm run test-unit
@@ -26,6 +29,10 @@ jobs: # a collection of steps
           # Upload test summary for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
           path: test-results.xml
           prefix: tests
+      - store_artifacts: # special step to save test results as as artifact
+          # Upload test summary for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
+          path: lint-results.xml
+          prefix: lints
       - store_test_results: # for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
           path: test-results.xml
       # See https://circleci.com/docs/2.0/deployment-integrations/ for deploy examples
