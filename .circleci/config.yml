@@ -29,7 +29,7 @@ jobs:
           command: npm run test-unit
       - run:
           name: deploy
-          command: 'nohup npm run start 0<&- &>/dev/null & | sleep 20s'
+          command: 'nohup npm run start 0<&- &>/dev/null & && sleep 20s'
       - run:
           name: deploy
           command: npm run test-api
