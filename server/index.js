@@ -3,5 +3,5 @@ import Server from './common/server'
 import routes from './routes'
 
 export default new Server()
-  .router(routes)
-  .listen(process.env.PORT, process.env.MONGO_URL)
+    .router(routes)
+    .listen(process.env.PORT, process.env.MONGO_URL)
