@@ -29,8 +29,7 @@ jobs:
           command: npm run test-unit
       - run:
           name: deploy
-          command: nohup bash -c "npm run start >deploy.log 2>&1 &" && sleep 4
-                  cat deploy.log
+          command: nohup bash -c "npm run start >deploy.log 2>&1 &" && sleep 4s && cat deploy.log
       - run:
           name: check-deploy
           command: sleep 10s && cat test.deploy.log
