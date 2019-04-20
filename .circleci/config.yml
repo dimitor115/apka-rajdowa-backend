@@ -19,20 +19,17 @@ jobs:
           paths:
             - ./node_modules
       - run:
-          name: build
+          name: compile
           command: npm run compile
       - run:
-          name: lint
+          name: check-linter
           command: npm run lint
       - run:
-          name: test
+          name: unit-test
           command: npm run test-unit
       - run:
-          name: deploy
+          name: deploy-and-integration-tests
           command: nohup bash -c "npm run start >deploy.log 2>&1 &" && sleep 5s && cat deploy.log && npm run test-api
-      - run:
-          name: check results
-          command: cat deploy.log
       - store_artifacts: # special step to save test results as as artifact
           path: test-results.xml
           prefix: tests
