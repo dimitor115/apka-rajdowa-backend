@@ -1,0 +1,40 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/mern-starter
+    docker:
+      - image: circleci/node:10.0.0 # ...with this image as the primary container; this is where all `steps` will run
+    steps:
+      - checkout # special step to check out source code to working directory
+      - run:
+          name: update-npm
+          command: 'sudo npm install -g npm@latest'
+      - restore_cache: # special step to restore the dependency cache
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: install-npm-wee
+          command: npm install
+      - save_cache: # special step to save the dependency cache
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+      - run:
+          name: compile
+          command: npm run compile
+      - run:
+          name: check-linter
+          command: npm run lint
+      - run:
+          name: unit-test
+          command: npm run test-unit
+      - run:
+          name: deploy-and-integration-tests
+          command: nohup bash -c "npm run start >deploy.log 2>&1 &" && sleep 5s && cat deploy.log && npm run test-api
+      - store_artifacts: # special step to save test results as as artifact
+          path: test-results.xml
+          prefix: tests
+      - store_artifacts: # special step to save test results as as artifact
+          path: lint-results.xml
+          prefix: lints
+      - store_test_results:
+          path: test-results.xml

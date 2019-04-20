@@ -23,7 +23,7 @@ export default function (func) {
                     .send({
                         messages: error.messages
                     })
-            } else if (error.hasOwnProperty('name') && error.name === 'ValidationError') {
+            } else if (Object.prototype.hasOwnProperty.call(error, 'name') && error.name === 'ValidationError') {
                 res.status(400)
                     .send({
                         messages: [error.message]
