@@ -29,10 +29,10 @@ jobs:
           command: npm run test-unit
       - run:
           name: deploy
-          command: nohup bash -c "npm run start >deploy.log 2>&1 &" && sleep 5s && cat deploy.log
+          command: nohup bash -c "npm run start >deploy.log 2>&1 &" && sleep 5s && cat deploy.log && npm run test-api
       - run:
-          name: deploy
-          command: npm run test-api && killall node
+          name: check results
+          command: cat deploy.log
       - store_artifacts: # special step to save test results as as artifact
           path: test-results.xml
           prefix: tests
