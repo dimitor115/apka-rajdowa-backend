@@ -6,8 +6,6 @@ import eventsService from '../services/EventsService'
 const router = express.Router()
 const upload = multer({ dest: 'public/uploads/' })
 
-// TODO: endpoint do dodawania loga
-
 router.get('/all/:organisationId', resultHandler(req => eventsService.findAll(req.params.organisationId)))
 router.post('/', upload.single('logo'), resultHandler(req => eventsService.add(req.body, req.file)))
 router.put('/:id', resultHandler(req => eventsService.update(req.params.id, req.body)))
