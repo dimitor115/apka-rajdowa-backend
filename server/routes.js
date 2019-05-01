@@ -2,10 +2,12 @@ import {
     SchemasController,
     ParticipantsController,
     AuthController,
-    EventsController
+    EventsController,
+    StaticController
 } from './controllers'
 
 export default function routes(app) {
+    app.use('/static', StaticController)
     app.use('/api/v1/auth', AuthController)
     app.use('/api/v1/schemas', SchemasController)
     app.use('/api/v1/event/participants', ParticipantsController)

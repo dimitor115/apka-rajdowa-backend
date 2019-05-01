@@ -25,7 +25,7 @@ export default class ExpressServer {
             saveUninitialized: true,
             cookie: { secure: false }
         }))
-        app.use(Express.static(`${root}/public`))
+        app.use(Express.static(`${root}/public/static`))
         app.use(cors())
         app.use(passport.initialize())
     }
