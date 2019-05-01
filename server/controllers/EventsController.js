@@ -4,7 +4,7 @@ import resultHandler from '../middlewares/resultHandler'
 import eventsService from '../services/EventsService'
 
 const router = express.Router()
-const upload = multer({ dest: 'public/uploads/' })
+const upload = multer({ dest: process.env.UPLOAD_DIR || 'public/uploads' })
 
 router.get('/all/:organisationId', resultHandler(req => eventsService.findAll(req.params.organisationId)))
 router.post('/', upload.single('logo'), resultHandler(req => eventsService.add(req.body, req.file)))

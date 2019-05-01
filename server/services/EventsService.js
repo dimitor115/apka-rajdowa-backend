@@ -4,6 +4,8 @@ import Response from '../common/utils/Response'
 import Exception from '../common/utils/Exception'
 import logger from '../common/logger'
 
+const uploadDir = process.env.UPLOAD_DIR || 'public/uploads'
+
 class EventsService {
     async add(event, img) {
     // TODO: sprawdanie czy organizacja o takim id istanieje, jak już bedzie obsługa organizacji
@@ -21,7 +23,7 @@ class EventsService {
             throw new Exception(`Event with id ${_id} doesn't exist`)
         } else {
             const fileName = result.logo.split('/img/')[1]
-            await fs.promises.unlink(`public/uploads/${fileName}`)
+            await fs.promises.unlink(`${uploadDir}/${fileName}`)
             logger.info(`Removing file : ${fileName}`)
             return new Response(result)
         }
