@@ -31,7 +31,9 @@ export default function (func) {
             } else {
                 log.error(error)
                 res.status(500)
-                    .send(error)
+                    .send({
+                        messages: [error.message || '']
+                    })
             }
         })
 }
