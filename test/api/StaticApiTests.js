@@ -2,18 +2,17 @@ import { expect } from 'chai'
 import { describe } from 'mocha'
 import request from 'request-promise-native'
 import { insertEvent, removeEvent, event } from './EventsApiTests'
-import apiUrl from './apiUrl'
 
 describe('Static Api', () => {
-    it('Should nie wiem co', async () => {
+    it('Should download event logo file', async () => {
         /* eslint-disable */
         // prepare
         const insertResult = await insertEvent(event())
         expect(insertResult.data.logo).to.exist
         // given
-        const { logo } = insertResult
+        const { logo } = insertResult.data
         // when
-        const img = await request(apiUrl(`/static/img/${logo}`))
+        const img = await request(logo)
         // then
         expect(img).to.exist
         // after
