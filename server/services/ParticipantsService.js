@@ -14,13 +14,34 @@ class ParticipantsService {
             throw new Exception(`Not found collection form_${formId}`, 404)
         } else {
             const parsedQuery = qs.parse(query)
-            const fields = { projection: parsedQuery.fields }
-            const sortBy = parsedQuery.sortBy ? await Object.keys(parsedQuery.sortBy)
+            const page = parseInt(parsedQuery.page, 0) || 1
+            const count = parseInt(parsedQuery.count, 0) || 3
+
+            const fields = {
+                projection: parsedQuery.fields
+                    ? await Object.keys(parsedQuery.fields)
+                        .reduce((aggregate, key) => ({ ...aggregate, [key]: parseInt(parsedQuery.fields[key], 0) }), {})
+                    : {}
+            }
+
+            const sort = parsedQuery.sort ? await Object.keys(parsedQuery.sort)
                 .reduce((aggregate, key) => (
                     { ...aggregate, [key]: parseInt(parsedQuery.sortBy[key], 0) }), {}) : {}
 
-            const result = await mongoose.connection.collection(`form_${formId}`).find(parsedQuery.query, fields).sort(sortBy).toArray()
-            return new Response(result, 200)
+            const result = await mongoose.connection.collection(`form_${formId}`)
+                .find(parsedQuery.filter, fields)
+                .skip((page - 1) * count)
+                .limit(count)
+                .sort(sort)
+                .toArray()
+
+            const total = await mongoose.connection.collection(`form_${formId}`)
+                .count(parsedQuery.filter, fields)
+
+            const pages = result.length ? Math.trunc(total / count) || 1 : 0
+
+            const meta = { total, pages, current_page: page }
+            return new Response({ data: result, meta }, 200)
         }
     }
 
