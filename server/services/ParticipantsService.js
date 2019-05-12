@@ -14,8 +14,8 @@ class ParticipantsService {
             throw new Exception(`Not found collection form_${formId}`, 404)
         } else {
             const parsedQuery = qs.parse(query)
-            const page = parseInt(parsedQuery.page, 0) || 1
-            const count = parseInt(parsedQuery.count, 0) || 3
+            const page = parseInt(parsedQuery.page, 0) || process.env.DEFAULT_PAGE || 1
+            const count = parseInt(parsedQuery.count, 0) || process.env.DEFAULT_PER_PAGE || 50
 
             const fields = {
                 projection: parsedQuery.fields
