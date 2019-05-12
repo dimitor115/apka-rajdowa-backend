@@ -20,7 +20,9 @@ class ParticipantsService {
             const fields = {
                 projection: parsedQuery.fields
                     ? await Object.keys(parsedQuery.fields)
-                        .reduce((aggregate, key) => ({ ...aggregate, [key]: parseInt(parsedQuery.fields[key], 0) }), {})
+                        .reduce((aggregate, key) => (
+                            { ...aggregate, [key]: parseInt(parsedQuery.fields[key], 0) }
+                        ), {})
                     : {}
             }
 
