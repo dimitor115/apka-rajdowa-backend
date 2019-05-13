@@ -19,31 +19,32 @@ class ParticipantsService {
 
             const fields = {
                 projection: parsedQuery.fields
-                    ? Object.keys(parsedQuery.fields)
-                        .reduce((aggregate, key) => (
-                            { ...aggregate, [key]: parseInt(parsedQuery.fields[key], 0) }
-                        ), {})
+                    ? Object.keys(parsedQuery.fields).reduce((aggregate, key) => ({
+                        ...aggregate, [key]: parseInt(parsedQuery.fields[key], 0)
+                    }), {})
                     : {}
             }
 
             const sort = parsedQuery.sort ? Object.keys(parsedQuery.sort)
-                .reduce((aggregate, key) => (
-                    { ...aggregate, [key]: parseInt(parsedQuery.sort[key], 0) }), {}) : {}
+                .reduce((aggregate, key) => ({
+                    ...aggregate, [key]: parseInt(parsedQuery.sort[key], 0)
+                }), {}) : {}
 
-            const result = await mongoose.connection.collection(`form_${formId}`)
+            const promiseList = mongoose.connection.collection(`form_${formId}`)
                 .find(parsedQuery.filter, fields)
                 .skip((page - 1) * count)
                 .limit(count)
                 .sort(sort)
                 .toArray()
 
-            const total = await mongoose.connection.collection(`form_${formId}`)
+            const promiseTotal = mongoose.connection.collection(`form_${formId}`)
                 .count(parsedQuery.filter, fields)
 
-            const pages = result.length ? Math.trunc(total / count) || 1 : 0
-
+            const [list, total] = [await promiseList, await promiseTotal]
+            const pages = list.length ? Math.trunc(total / count) || 1 : 0
             const meta = { total, pages, current_page: page }
-            return new Response({ data: result, meta }, 200)
+
+            return new Response({ list, meta }, 200)
         }
     }
 
