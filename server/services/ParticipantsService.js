@@ -14,21 +14,21 @@ class ParticipantsService {
             throw new Exception(`Not found collection form_${formId}`, 404)
         } else {
             const parsedQuery = qs.parse(query)
-            const page = parseInt(parsedQuery.page, 0) || process.env.DEFAULT_PAGE || 1
-            const count = parseInt(parsedQuery.count, 0) || process.env.DEFAULT_PER_PAGE || 50
+            const page = parseInt(parsedQuery.page, 0) || parseInt(process.env.DEFAULT_PAGE, 0) || 1
+            const count = parseInt(parsedQuery.count, 0) || parseInt(process.env.DEFAULT_PER_PAGE, 0) || 50
 
             const fields = {
                 projection: parsedQuery.fields
-                    ? await Object.keys(parsedQuery.fields)
+                    ? Object.keys(parsedQuery.fields)
                         .reduce((aggregate, key) => (
                             { ...aggregate, [key]: parseInt(parsedQuery.fields[key], 0) }
                         ), {})
                     : {}
             }
 
-            const sort = parsedQuery.sort ? await Object.keys(parsedQuery.sort)
+            const sort = parsedQuery.sort ? Object.keys(parsedQuery.sort)
                 .reduce((aggregate, key) => (
-                    { ...aggregate, [key]: parseInt(parsedQuery.sortBy[key], 0) }), {}) : {}
+                    { ...aggregate, [key]: parseInt(parsedQuery.sort[key], 0) }), {}) : {}
 
             const result = await mongoose.connection.collection(`form_${formId}`)
                 .find(parsedQuery.filter, fields)
