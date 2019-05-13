@@ -38,6 +38,7 @@ export default class ExpressServer {
     }
 
     listen(port = process.env.PORT, mongoUrl = process.env.MONGO_URL) {
+        // eslint-disable-next-line max-len
         const welcome = p => () => l.info(`up and running in ${process.env.NODE_ENV || 'development'} @: ${os.hostname()} on port: ${p}}`)
         http.createServer(app).listen(port, welcome(port))
         connectDb(mongoUrl)
