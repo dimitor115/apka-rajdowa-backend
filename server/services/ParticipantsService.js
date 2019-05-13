@@ -38,7 +38,7 @@ class ParticipantsService {
                 .toArray()
 
             const promiseTotal = mongoose.connection.collection(`form_${formId}`)
-                .count(parsedQuery.filter, fields)
+                .countDocuments(parsedQuery.filter)
 
             const [list, total] = [await promiseList, await promiseTotal]
             const pages = list.length ? Math.trunc(total / count) || 1 : 0
