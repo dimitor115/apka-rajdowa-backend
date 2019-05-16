@@ -14,13 +14,37 @@ class ParticipantsService {
             throw new Exception(`Not found collection form_${formId}`, 404)
         } else {
             const parsedQuery = qs.parse(query)
-            const fields = { projection: parsedQuery.fields }
-            const sortBy = parsedQuery.sortBy ? await Object.keys(parsedQuery.sortBy)
-                .reduce((aggregate, key) => (
-                    { ...aggregate, [key]: parseInt(parsedQuery.sortBy[key], 0) }), {}) : {}
+            const page = parseInt(parsedQuery.page, 10) || parseInt(process.env.DEFAULT_PAGE, 10) || 1
+            const count = parseInt(parsedQuery.count, 10) || parseInt(process.env.DEFAULT_PER_PAGE, 10) || 50
 
-            const result = await mongoose.connection.collection(`form_${formId}`).find(parsedQuery.query, fields).sort(sortBy).toArray()
-            return new Response(result, 200)
+            const fields = {
+                projection: parsedQuery.fields
+                    ? Object.keys(parsedQuery.fields).reduce((aggregate, key) => ({
+                        ...aggregate, [key]: parseInt(parsedQuery.fields[key], 10)
+                    }), {})
+                    : {}
+            }
+
+            const sort = parsedQuery.sort ? Object.keys(parsedQuery.sort)
+                .reduce((aggregate, key) => ({
+                    ...aggregate, [key]: parseInt(parsedQuery.sort[key], 10)
+                }), {}) : {}
+
+            const promiseList = mongoose.connection.collection(`form_${formId}`)
+                .find(parsedQuery.filter, fields)
+                .skip((page - 1) * count)
+                .limit(count)
+                .sort(sort)
+                .toArray()
+
+            const promiseTotal = mongoose.connection.collection(`form_${formId}`)
+                .countDocuments(parsedQuery.filter)
+
+            const [list, total] = [await promiseList, await promiseTotal]
+            const pages = list.length ? Math.trunc(total / count) || 1 : 0
+            const meta = { total, pages, current_page: page }
+
+            return new Response({ list, meta }, 200)
         }
     }
 
