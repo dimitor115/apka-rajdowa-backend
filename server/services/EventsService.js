@@ -16,12 +16,11 @@ const parseEventLogoUrl = event => {
 
 class EventsService {
     async add(event, img) {
-    // TODO: sprawdanie czy organizacja o takim id istanieje, jak już bedzie obsługa organizacji
     // TODO: sprawdzanie poprawności aliasu email
         logger.info(`Creating new event with name ${event.name}`)
         event.logo = `/static/img/${img.filename}`
         const result = await eventModel.create(event)
-        return new Response(parseEventLogoUrl(result), 201)
+        return new Response(result, 201)
     }
 
     async delete(_id) {
@@ -43,7 +42,7 @@ class EventsService {
         if (result == null) {
             throw new Exception(`Event with id ${_id} doesn't exist`)
         } else {
-            return new Response(parseEventLogoUrl(event))
+            return new Response(event)
         }
     }
 
@@ -51,7 +50,7 @@ class EventsService {
         logger.info(`Fetching all events for organisation ${organisationId}`)
         const events = await eventModel.find({ organisationId })
         return new Response(
-            events.map(parseEventLogoUrl)
+            events
         )
     }
 
