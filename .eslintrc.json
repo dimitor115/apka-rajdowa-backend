@@ -11,6 +11,7 @@
   "rules": {
     "no-underscore-dangle": 0,
     "class-methods-use-this": ["off"],
+    "no-else-return": "off",
     "no-param-reassign": "off",
     "no-unused-vars": "warn",
     "no-use-before-define": ["error", {

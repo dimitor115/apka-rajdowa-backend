@@ -15,6 +15,7 @@ router.get('/img/:id', (req, res) => {
         .catch(error => {
             logger.warn(error)
             // this is only development useful solution and has to be remove before release
+            // TODO: remove it before going on production
             fs.createReadStream(`${uploadDir}/logo-default.png`).pipe(res)
         })
 })

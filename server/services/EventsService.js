@@ -16,7 +16,6 @@ const parseEventLogoUrl = event => {
 
 class EventsService {
     async add(event, img) {
-    // TODO: sprawdzanie poprawności aliasu email
         logger.info(`Creating new event with name ${event.name}`)
         event.logo = `/static/img/${img.filename}`
         const result = await eventModel.create(event)
@@ -26,13 +25,13 @@ class EventsService {
     async delete(_id) {
         logger.info(`Deleting event with id : ${_id}`)
         const result = await eventModel.findOneAndDelete({ _id })
-        if (result == null) {
-            throw new Exception(`Event with id ${_id} doesn't exist`)
-        } else {
+        if (result !== null) {
             const fileName = result.logo.split('/img/')[1]
             await fs.promises.unlink(`${uploadDir}/${fileName}`)
             logger.info(`Removing file : ${fileName}`)
             return new Response(result)
+        } else {
+            throw new Exception(`Event with id ${_id} doesn't exist`)
         }
     }
 
@@ -59,7 +58,8 @@ class EventsService {
         const data = await eventModel.find({}, {
             emailAlias: true,
             _id: false
-        }).then(result => result.map(x => x.emailAlias))
+        })
+            .then(result => result.map(x => x.emailAlias))
         return new Response(data)
     }
 }
