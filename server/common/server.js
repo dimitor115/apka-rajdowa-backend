@@ -25,7 +25,8 @@ export default class ExpressServer {
             saveUninitialized: true,
             cookie: { secure: false }
         }))
-        app.use(Express.static(`${root}/public`))
+        // TODO: think about using it when swagger doc appear
+        // app.use(Express.static(`${root}/public/static`))
         app.use(cors())
         app.use(passport.initialize())
     }

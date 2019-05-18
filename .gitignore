@@ -4,3 +4,7 @@ dist
 .env
 .DS_Store
 test.js
+public/uploads/*
+# to watch default files
+!public/uploads/*.png
+

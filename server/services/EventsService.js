@@ -1,14 +1,23 @@
+import fs from 'fs'
+import ip from 'ip'
 import eventModel from '../models/event'
 import Response from '../common/utils/Response'
 import Exception from '../common/utils/Exception'
 import logger from '../common/logger'
 
+const uploadDir = process.env.UPLOAD_DIR || 'public/uploads'
+const port = process.env.PORT || '3000'
+const addressPrefix = `http://${ip.address()}:${port}`
+
+const parseEventLogoUrl = event => {
+    event.logo = addressPrefix + event.logo
+    return event
+}
+
 class EventsService {
-    async add(event) {
-    // TODO: sprawdanie czy organizacja o takim id istanieje, jak już bedzie obsługa organizacji
-    // TODO: sprawdzanie poprawności aliasu email
-    // TODO: załączenie linku do zdjęcia
+    async add(event, img) {
         logger.info(`Creating new event with name ${event.name}`)
+        event.logo = `/static/img/${img.filename}`
         const result = await eventModel.create(event)
         return new Response(result, 201)
     }
@@ -16,10 +25,13 @@ class EventsService {
     async delete(_id) {
         logger.info(`Deleting event with id : ${_id}`)
         const result = await eventModel.findOneAndDelete({ _id })
-        if (result == null) {
-            throw new Exception(`Event with id ${_id} doesn't exist`)
-        } else {
+        if (result !== null) {
+            const fileName = result.logo.split('/img/')[1]
+            await fs.promises.unlink(`${uploadDir}/${fileName}`)
+            logger.info(`Removing file : ${fileName}`)
             return new Response(result)
+        } else {
+            throw new Exception(`Event with id ${_id} doesn't exist`)
         }
     }
 
@@ -29,14 +41,15 @@ class EventsService {
         if (result == null) {
             throw new Exception(`Event with id ${_id} doesn't exist`)
         } else {
-            return new Response(result)
+            return new Response(event)
         }
     }
 
     async findAll(organisationId) {
         logger.info(`Fetching all events for organisation ${organisationId}`)
+        const events = await eventModel.find({ organisationId })
         return new Response(
-            await eventModel.find({ organisationId })
+            events
         )
     }
 
@@ -45,7 +58,8 @@ class EventsService {
         const data = await eventModel.find({}, {
             emailAlias: true,
             _id: false
-        }).then(result => result.map(x => x.emailAlias))
+        })
+            .then(result => result.map(x => x.emailAlias))
         return new Response(data)
     }
 }

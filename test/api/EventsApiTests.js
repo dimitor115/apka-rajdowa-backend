@@ -1,20 +1,20 @@
-import chai from 'chai'
+import { expect } from 'chai'
 import { describe } from 'mocha'
 import request from 'request-promise-native'
+import fs from 'fs'
 import url from './apiUrl'
 
-const { expect } = chai
+export function event(name = 'Rajd', organisationId = 'w8', emailAlias = 'rajd-w8') {
+    return {
+        organisationId,
+        name,
+        emailAlias,
+        startDate: '2018-04-01',
+        endDate: '2018-05-01'
+    }
+}
 
-const event = (name = 'Rajd', organisationId = 'w8', emailAlias = 'rajd-w8') => ({
-    organisationId,
-    name,
-    emailAlias,
-    startDate: '2018-04-01',
-    endDate: '2018-05-01',
-    logo: 'tmp'
-})
-
-describe('Events Api tests', () => {
+describe('Events Api', () => {
     it('should insert new event and delete it successfully', async () => {
     // given
         const eventName = 'Rajd wiosenny'
@@ -23,6 +23,8 @@ describe('Events Api tests', () => {
         const removeResult = await removeEvent(insertResult.data._id)
         // then
         expect(insertResult.data.name).to.equal(eventName)
+        /* eslint-disable-next-line */
+        expect(insertResult.data.logo).to.exist
         expect(removeResult.data._id).to.equal(insertResult.data._id)
     })
     it('should update event', async () => {
@@ -64,39 +66,40 @@ describe('Events Api tests', () => {
 async function updateEvent(eventId, body) {
     return request({
         method: 'PUT',
-        uri: url(`event/${eventId}`),
+        uri: url(`/api/v1/event/${eventId}`),
         body,
         json: true
     })
 }
 
-async function removeEvent(eventId) {
+export async function removeEvent(eventId) {
     return request({
         method: 'DELETE',
-        uri: url(`event/${eventId}`),
+        uri: url(`/api/v1/event/${eventId}`),
         json: true
     })
 }
 
-async function insertEvent(body) {
+export async function insertEvent(body) {
+    body.logo = fs.createReadStream('test/resources/test-logo.png')
     return request({
         method: 'POST',
-        uri: url('event'),
-        body,
+        uri: url('/api/v1/event'),
+        formData: body,
         json: true
     })
 }
 
 async function fetchAllEmailAliases() {
     return request({
-        uri: url('event/email-aliases'),
+        uri: url('/api/v1/event/email-aliases'),
         json: true
     })
 }
 
 async function fetchAllEvents(organisationId) {
     return request({
-        uri: url(`event/all/${organisationId}`),
+        uri: url(`/api/v1/event/all/${organisationId}`),
         json: true
     })
 }
