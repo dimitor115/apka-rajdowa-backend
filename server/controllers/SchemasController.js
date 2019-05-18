@@ -1,6 +1,6 @@
 import * as express from 'express'
-import resultHandler from '../middlewares/resultHandler'
-import { SchemasService } from '../services'
+import { resultHandler } from 'middlewares'
+import { SchemasService } from 'services'
 
 const router = express.Router()
 router.post('/', resultHandler(req => SchemasService.create(req.body.name, req.body.schema)))

@@ -1,6 +1,6 @@
 import * as express from 'express'
 import fs from 'fs'
-import logger from '../common/logger'
+import logger from 'common/logger'
 
 const router = express.Router()
 const uploadDir = process.env.UPLOAD_DIR || 'public/uploads'

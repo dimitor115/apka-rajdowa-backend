@@ -15,7 +15,7 @@ const parseEventLogoUrl = event => {
 }
 
 class EventsService {
-    async add(event, img) {
+    async add(event, img, user) {
         logger.info(`Creating new event with name ${event.name}`)
         event.logo = `/static/img/${img.filename}`
         const result = await eventModel.create(event)
@@ -54,7 +54,7 @@ class EventsService {
     }
 
     async findAllEmailAliases() {
-        logger.info('Fetching all email aliases in db')
+        logger.info('Fetching all email aliases in database')
         const data = await eventModel.find({}, {
             emailAlias: true,
             _id: false

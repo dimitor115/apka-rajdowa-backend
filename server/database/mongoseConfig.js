@@ -1,4 +1,4 @@
-import log from '../common/logger'
+import log from 'common/logger'
 
 const mongoose = require('mongoose')
 

@@ -1,11 +1,21 @@
 import mongoose from 'mongoose'
 
+const Administrator = mongoose.Schema({
+    userId: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    role: {
+        type: String,
+        enum: ['OWNER', 'ADMIN']
+    }
+})
+
 const Event = mongoose.Schema(
     {
-        organisationId: {
-            type: String,
-            required: true
-        },
+        administrators: [Administrator],
+        forms: Array,
         name: {
             type: String,
             required: true

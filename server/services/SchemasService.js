@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
-import { Response, Exception } from '../common/utils'
-import { Schema } from '../models'
+import { Schema } from 'models'
+import { Response, Exception } from 'common/utils'
 
 class SchemasService {
     async create(name, schema) {

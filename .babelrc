@@ -5,5 +5,19 @@
         "node": "current"
       }
     }]
+  ],
+  "plugins": [
+    ["module-resolver", {
+      "root": ["./src"],
+      "alias": {
+        "middlewares": "./server/middlewares",
+        "auth": "./server/auth",
+        "common": "./server/common",
+        "controllers": "./server/controllers",
+        "database": "./server/database",
+        "models": "./server/models",
+        "services": "./server/services"
+      }
+    }]
   ]
 }

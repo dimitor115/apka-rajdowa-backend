@@ -1,6 +1,6 @@
 import * as express from 'express'
 import multer from 'multer'
-import resultHandler from '../middlewares/resultHandler'
+import { resultHandler, authorization } from 'middlewares'
 import eventsService from '../services/EventsService'
 
 const router = express.Router()

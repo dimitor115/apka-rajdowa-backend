@@ -1,6 +1,6 @@
 import * as express from 'express'
-import resultHandler from '../middlewares/resultHandler'
-import { ParticipantsService } from '../services'
+import { ParticipantsService } from 'services'
+import { resultHandler } from 'middlewares'
 
 const router = express.Router()
 router.post('/', resultHandler(req => ParticipantsService.add(req.header('form-id'), 'private', req.body)))

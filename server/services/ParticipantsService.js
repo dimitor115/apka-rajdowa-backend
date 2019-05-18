@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import qs from 'qs'
-import { Response, Exception } from '../common/utils'
-import { Schema } from '../models'
+import { Schema } from 'models'
+import { Response, Exception } from 'common/utils'
 import SchemasService from './SchemasService'
 
 const ACCESS_PRIVATE = 'private'
