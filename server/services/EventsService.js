@@ -1,27 +1,24 @@
 import fs from 'fs'
-import eventModel from 'models/Event'
-import Response from 'common/utils/Response'
-import Exception from 'common/utils/Exception'
+import { Event, User } from 'models'
+import { Response, Exception } from 'common/utils'
 import logger from 'common/logger'
 
 const uploadDir = process.env.UPLOAD_DIR || 'public/uploads'
 
 class EventsService {
     async add(event, img, user) {
-        logger.info(`Creating new event with name ${event.name}`)
-        event.administrators = [{
-            userId: user._id,
-            role: 'OWNER'
-        }]
+        logger.info(`Creating new event with name ${event.name} by ${user.google.email}`)
+        const parseResult = await parseAdministrators(event.otherAdministrators, user._id)
+        event.administrators = parseResult.administrators
         event.forms = []
         event.logo = `/static/img/${img.filename}`
-        const result = await eventModel.create(event)
-        return new Response(result, 201)
+        const result = await Event.create(event)
+        return new Response(result, 201, parseResult.messages)
     }
 
     async delete(_id) {
         logger.info(`Deleting event with id : ${_id}`)
-        const result = await eventModel.findOneAndDelete({ _id })
+        const result = await Event.findOneAndDelete({ _id })
         if (result !== null) {
             const fileName = result.logo.split('/img/')[1]
             await fs.promises.unlink(`${uploadDir}/${fileName}`)
@@ -34,7 +31,7 @@ class EventsService {
 
     async update(_id, event) {
         logger.info(`Updating event with id ${_id}`)
-        const result = await eventModel.findOneAndUpdate({ _id }, event, { new: true })
+        const result = await Event.findOneAndUpdate({ _id }, event, { new: true })
         if (result == null) {
             throw new Exception(`Event with id ${_id} doesn't exist`)
         } else {
@@ -44,7 +41,14 @@ class EventsService {
 
     async findAll(user) {
         logger.info(`Fetching all events for ${user.google.email}`)
-        const events = await eventModel.find({ 'administrators.userId': user._id })
+        const events = await Event.find(
+            { 'administrators.userId': user._id },
+            {
+                forms: false,
+                administrators: false,
+                emailAlias: false
+            }
+        )
         return new Response(
             events
         )
@@ -52,7 +56,7 @@ class EventsService {
 
     async findAllEmailAliases() {
         logger.info('Fetching all email aliases in database')
-        const data = await eventModel.find({}, {
+        const data = await Event.find({}, {
             emailAlias: true,
             _id: false
         })
@@ -62,3 +66,33 @@ class EventsService {
 }
 
 export default new EventsService()
+
+async function parseAdministrators(otherAdministrators, ownerId) {
+    const messages = []
+    const owner = {
+        userId: ownerId,
+        role: 'OWNER'
+    }
+    const administrators = await Promise.all(otherAdministrators
+        .split(',')
+        .map(async email => {
+            const result = await User.findOne({ 'google.email': email })
+            if (result) {
+                return {
+                    userId: result._id,
+                    role: 'ADMIN'
+                }
+            } else {
+                messages.push(`Użytkownik ${email} będzie miał dostęp do wydarzenia po pierwszym logowaniu.
+                 Nie mamy go jeszcze w systemie`)
+                return {
+                    userId: email, // This email will be replace by user id after user first login
+                    role: 'ADMIN'
+                }
+            }
+        }))
+    return {
+        administrators: [owner, ...administrators],
+        messages
+    }
+}

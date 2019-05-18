@@ -18,7 +18,6 @@ export default function (func) {
             }
         } catch (error) {
             log.error(error)
-            console.log('chuj')
             if (error instanceof Exception) {
                 error.messages.forEach(msg => log.error(msg))
                 res.status(error.httpCode)
