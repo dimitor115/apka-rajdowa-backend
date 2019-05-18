@@ -42,9 +42,9 @@ class EventsService {
         }
     }
 
-    async findAll(organisationId) {
-        logger.info(`Fetching all events for organisation ${organisationId}`)
-        const events = await eventModel.find({ organisationId })
+    async findAll(user) {
+        logger.info(`Fetching all events for ${user.google.email}`)
+        const events = await eventModel.find({ 'administrators.userId': user._id })
         return new Response(
             events
         )
