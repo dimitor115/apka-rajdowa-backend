@@ -7,9 +7,8 @@ const router = express.Router()
 const upload = multer({ dest: process.env.UPLOAD_DIR || 'public/uploads' })
 
 router.get('/all/:organisationId', resultHandler(req => eventsService.findAll(req.params.organisationId)))
-router.post('/', upload.single('logo'), resultHandler(req => eventsService.add(req.body, req.file)))
+router.post('/', authorization, upload.single('logo'), resultHandler(req => eventsService.add(req.body, req.file, req.user)))
 router.put('/:id', resultHandler(req => eventsService.update(req.params.id, req.body)))
 router.delete('/:id', resultHandler(req => eventsService.delete(req.params.id)))
-router.get('/email-aliases', resultHandler(() => eventsService.findAllEmailAliases()))
 
 export default router

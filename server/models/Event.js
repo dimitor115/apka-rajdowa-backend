@@ -1,10 +1,9 @@
 import mongoose from 'mongoose'
 
-const Administrator = mongoose.Schema({
+const EventAdministrator = mongoose.Schema({
     userId: {
         type: String,
-        required: true,
-        unique: true
+        required: true
     },
     role: {
         type: String,
@@ -14,7 +13,7 @@ const Administrator = mongoose.Schema({
 
 const Event = mongoose.Schema(
     {
-        administrators: [Administrator],
+        administrators: [EventAdministrator],
         forms: Array,
         name: {
             type: String,

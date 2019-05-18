@@ -1,22 +1,19 @@
 import fs from 'fs'
-import ip from 'ip'
-import eventModel from '../models/event'
-import Response from '../common/utils/Response'
-import Exception from '../common/utils/Exception'
-import logger from '../common/logger'
+import eventModel from 'models/Event'
+import Response from 'common/utils/Response'
+import Exception from 'common/utils/Exception'
+import logger from 'common/logger'
 
 const uploadDir = process.env.UPLOAD_DIR || 'public/uploads'
-const port = process.env.PORT || '3000'
-const addressPrefix = `http://${ip.address()}:${port}`
-
-const parseEventLogoUrl = event => {
-    event.logo = addressPrefix + event.logo
-    return event
-}
 
 class EventsService {
     async add(event, img, user) {
         logger.info(`Creating new event with name ${event.name}`)
+        event.administrators = [{
+            userId: user._id,
+            role: 'OWNER'
+        }]
+        event.forms = []
         event.logo = `/static/img/${img.filename}`
         const result = await eventModel.create(event)
         return new Response(result, 201)
