@@ -1,6 +1,6 @@
 import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt'
-import log from '../common/logger'
-import { User } from '../models'
+import log from 'common/logger'
+import { User } from 'models'
 
 export default new JWTStrategy({
     jwtFromRequest: ExtractJwt.fromHeader('authorization'),

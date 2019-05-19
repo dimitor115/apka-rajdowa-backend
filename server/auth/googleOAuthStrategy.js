@@ -1,6 +1,6 @@
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
-import log from '../common/logger'
-import { User } from '../models'
+import log from 'common/logger'
+import { User } from 'models'
 
 export default new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,

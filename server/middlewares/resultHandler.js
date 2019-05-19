@@ -1,6 +1,5 @@
 import log from 'common/logger'
-import Response from 'common/utils/Response'
-import Exception from 'common/utils/Exception'
+import { Response, Exception } from 'common/utils'
 
 // This is simple result handler and will be extend in future
 export default function (func) {

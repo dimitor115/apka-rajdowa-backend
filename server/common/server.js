@@ -6,8 +6,8 @@ import * as os from 'os'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import session from 'express-session'
-import connectDatabase from 'database/mongoseConfig'
-import passport from '../auth/authStrategies'
+import connectDatabase from 'database/mongooseConfig'
+import passport from 'auth/authStrategies'
 import l from './logger'
 
 const app = new Express()
