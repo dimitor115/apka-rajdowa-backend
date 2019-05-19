@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import { USER_ROLE } from 'common/constants'
 
 const EventAdministrator = mongoose.Schema({
     userId: {
@@ -7,7 +8,7 @@ const EventAdministrator = mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['OWNER', 'ADMIN']
+        enum: [USER_ROLE.OWNER, USER_ROLE.ADMIN]
     }
 })
 
@@ -36,7 +37,11 @@ const Event = mongoose.Schema(
             type: String,
             required: true
         },
-        slug: { type: String, slug: 'name', unique: true }
+        slug: {
+            type: String,
+            slug: 'name',
+            unique: true
+        }
     },
     {
         versionKey: false,

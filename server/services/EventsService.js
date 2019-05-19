@@ -2,6 +2,7 @@ import fs from 'fs'
 import { Event, User } from 'models'
 import { Response, Exception, byIdQuery } from 'common/utils'
 import logger from 'common/logger'
+import { USER_ROLE } from 'common/constants'
 
 const uploadDir = process.env.UPLOAD_DIR || 'public/uploads'
 
@@ -76,10 +77,7 @@ export default new EventsService()
 // TODO: refactore this function
 async function parseAdministrators(otherAdministrators, ownerId) {
     const messages = []
-    const owner = {
-        userId: ownerId,
-        role: 'OWNER'
-    }
+    const owner = { userId: ownerId, role: USER_ROLE.OWNER }
     const administratorsArray = otherAdministrators.includes(',')
         ? otherAdministrators.split(',')
         : []
@@ -87,21 +85,13 @@ async function parseAdministrators(otherAdministrators, ownerId) {
         .map(async email => {
             const result = await User.findOne({ 'google.email': email })
             if (result) {
-                return {
-                    userId: result._id,
-                    role: 'ADMIN'
-                }
+                return { userId: result._id, role: USER_ROLE.ADMIN }
             } else {
                 messages.push(`Użytkownik ${email} będzie miał dostęp do wydarzenia po pierwszym logowaniu.
                  Nie mamy go jeszcze w systemie`)
-                return {
-                    userId: email, // This email will be replace by user id after user first login
-                    role: 'ADMIN'
-                }
+                // This email will be replace by user id after user first login
+                return { userId: email, role: USER_ROLE.OWNER }
             }
         }))
-    return {
-        administrators: [owner, ...administrators],
-        messages
-    }
+    return { administrators: [owner, ...administrators], messages }
 }
