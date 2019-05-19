@@ -3,7 +3,7 @@ import { resultHandler } from 'middlewares'
 import { SchemasService } from 'services'
 
 const router = express.Router()
-router.post('/', resultHandler(req => SchemasService.create(req.body.name, req.body.schema)))
+router.post('/', resultHandler(req => SchemasService.create(req.body.name, req.body.schema, req.body.eventId)))
 router.get('/:id/public', resultHandler(req => SchemasService.getPublic(req.params.id)))
 router.get('/:id/private', resultHandler(req => SchemasService.getPrivate(req.params.id)))
 

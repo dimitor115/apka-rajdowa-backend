@@ -83,17 +83,20 @@ async function parseAdministrators(otherAdministrators, ownerId) {
     const administratorsArray = otherAdministrators.includes(',')
         ? otherAdministrators.split(',')
         : []
-    const administrators = await Promise.all(administratorsArray
-        .map(async email => {
-            const result = await User.findOne({ 'google.email': email })
-            if (result) {
-                return { userId: result._id, role: USER_ROLE.ADMIN }
-            } else {
-                messages.push(`Użytkownik ${email} będzie miał dostęp do wydarzenia po pierwszym logowaniu.
-                 Nie mamy go jeszcze w systemie`)
-                // This email will be replace by user id after user first login
-                return { userId: email, role: USER_ROLE.OWNER }
-            }
-        }))
+    const administrators = await Promise.all(x(administratorsArray, messages))
     return { administrators: [owner, ...administrators], messages }
+}
+
+function x(users, messages) {
+    return users.map(async email => {
+        const result = await User.findOne({ 'google.email': email })
+        if (result) {
+            return { userId: result._id, role: USER_ROLE.ADMIN }
+        } else {
+            messages.push(`Użytkownik ${email} będzie miał dostęp do wydarzenia po pierwszym logowaniu.
+                 Nie mamy go jeszcze w systemie`)
+            // This email will be replace by user id after user first login
+            return { userId: email, role: USER_ROLE.OWNER }
+        }
+    })
 }
