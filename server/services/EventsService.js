@@ -1,6 +1,6 @@
 import fs from 'fs'
 import { Event, User } from 'models'
-import { Response, Exception, isObjectID } from 'common/utils'
+import { Response, Exception, byIdQuery } from 'common/utils'
 import logger from 'common/logger'
 
 const uploadDir = process.env.UPLOAD_DIR || 'public/uploads'
@@ -50,16 +50,12 @@ class EventsService {
                 emailAlias: false
             }
         )
-        return new Response(
-            events
-        )
+        return new Response(events)
     }
 
     async findById(id) {
         logger.info(`Fetching event ${id} details`)
-        const query = isObjectID(id)
-            ? { _id: id }
-            : { slug: id }
+        const query = byIdQuery(id)
         const result = await Event.findOne(query)
         return new Response(result)
     }

@@ -1,6 +1,6 @@
 import * as express from 'express'
 import multer from 'multer'
-import { resultHandler, authorization } from 'middlewares'
+import { resultHandler, authorization, userPermissions } from 'middlewares'
 import eventsService from '../services/EventsService'
 
 const router = express.Router()
@@ -9,7 +9,7 @@ const upload = multer({ dest: process.env.UPLOAD_DIR || 'public/uploads' })
 router.get('/', authorization,
     resultHandler(req => eventsService.findAll(req.user)))
 
-router.get('/:id',
+router.get('/:id', authorization, userPermissions('ADMIN'),
     resultHandler(req => eventsService.findById(req.params.id)))
 
 router.post('/', authorization, upload.single('logo'),
