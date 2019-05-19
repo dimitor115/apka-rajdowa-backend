@@ -1,6 +1,6 @@
 import fs from 'fs'
 import { Event, User } from 'models'
-import { Response, Exception } from 'common/utils'
+import { Response, Exception, isObjectID } from 'common/utils'
 import logger from 'common/logger'
 
 const uploadDir = process.env.UPLOAD_DIR || 'public/uploads'
@@ -44,6 +44,7 @@ class EventsService {
         const events = await Event.find(
             { 'administrators.userId': user._id },
             {
+                _id: false,
                 forms: false,
                 administrators: false,
                 emailAlias: false
@@ -52,6 +53,15 @@ class EventsService {
         return new Response(
             events
         )
+    }
+
+    async findById(id) {
+        logger.info(`Fetching event ${id} details`)
+        const query = isObjectID(id)
+            ? { _id: id }
+            : { slug: id }
+        const result = await Event.findOne(query)
+        return new Response(result)
     }
 
     async findAllEmailAliases() {
@@ -67,14 +77,17 @@ class EventsService {
 
 export default new EventsService()
 
+// TODO: refactore this function
 async function parseAdministrators(otherAdministrators, ownerId) {
     const messages = []
     const owner = {
         userId: ownerId,
         role: 'OWNER'
     }
-    const administrators = await Promise.all(otherAdministrators
-        .split(',')
+    const administratorsArray = otherAdministrators.includes(',')
+        ? otherAdministrators.split(',')
+        : []
+    const administrators = await Promise.all(administratorsArray
         .map(async email => {
             const result = await User.findOne({ 'google.email': email })
             if (result) {

@@ -1,6 +1,9 @@
 import log from 'common/logger'
 
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
+import slug from 'mongoose-slug-generator'
+
+mongoose.plugin(slug)
 
 const connect = url => {
     mongoose.connection

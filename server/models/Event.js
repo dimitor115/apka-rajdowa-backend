@@ -22,7 +22,7 @@ const Event = mongoose.Schema(
         emailAlias: {
             type: String,
             required: true,
-            unique: true // TODO: read how it works
+            unique: true
         },
         startDate: {
             type: Date,
@@ -35,7 +35,8 @@ const Event = mongoose.Schema(
         logo: {
             type: String,
             required: true
-        }
+        },
+        slug: { type: String, slug: 'name', unique: true }
     },
     {
         versionKey: false,
