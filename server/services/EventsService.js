@@ -18,6 +18,7 @@ class EventsService {
     }
 
     async delete(_id) {
+        // TODO: make it using slug
         logger.info(`Deleting event with id : ${_id}`)
         const result = await Event.findOneAndDelete({ _id })
         if (result !== null) {
@@ -31,6 +32,7 @@ class EventsService {
     }
 
     async update(_id, event) {
+        // TODO: make it using slug
         logger.info(`Updating event with id ${_id}`)
         const result = await Event.findOneAndUpdate({ _id }, event, { new: true })
         if (result == null) {
