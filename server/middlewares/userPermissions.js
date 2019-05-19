@@ -16,7 +16,7 @@ export default function (role = USER_ROLE.ADMIN) {
                     .send({ messages: ['Nie masz uprawnień do wykonania tej operacji na tym wydarzeniu'] })
         } else {
             res.status(404)
-                .send({ messages: [`Nie ma w systemie wydarzenia o id: ${id}`] })
+                .send({ messages: [`Nie ma w systemie wydarzenia : ${id}`] })
         }
     }
 }

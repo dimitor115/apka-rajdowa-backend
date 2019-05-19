@@ -9,7 +9,7 @@ const uploadDir = process.env.UPLOAD_DIR || 'public/uploads'
 class EventsService {
     async add(event, img, user) {
         logger.info(`Creating new event with name ${event.name} by ${user.google.email}`)
-        const parseResult = await parseAdministrators(event.otherAdministrators, user._id)
+        const parseResult = await prepareAdministrators(event.usersEmails, user._id)
         event.administrators = parseResult.administrators
         event.forms = []
         event.logo = `/static/img/${img.filename}`
@@ -17,28 +17,26 @@ class EventsService {
         return new Response(result, 201, parseResult.messages)
     }
 
-    async delete(_id) {
-        // TODO: make it using slug
-        logger.info(`Deleting event with id : ${_id}`)
-        const result = await Event.findOneAndDelete({ _id })
-        if (result !== null) {
-            const fileName = result.logo.split('/img/')[1]
-            await fs.promises.unlink(`${uploadDir}/${fileName}`)
-            logger.info(`Removing file : ${fileName}`)
+    async delete(id) {
+        logger.info(`Deleting event : ${id}`)
+        const query = byIdQuery(id)
+        const result = await Event.findOneAndDelete(query)
+        if (result) {
+            await removeEventLogo(result)
             return new Response(result)
         } else {
-            throw new Exception(`Event with id ${_id} doesn't exist`)
+            throw new Exception(`Event with id ${id} doesn't exist`)
         }
     }
 
-    async update(_id, event) {
-        // TODO: make it using slug
-        logger.info(`Updating event with id ${_id}`)
-        const result = await Event.findOneAndUpdate({ _id }, event, { new: true })
-        if (result == null) {
-            throw new Exception(`Event with id ${_id} doesn't exist`)
-        } else {
+    async update(id, event) {
+        logger.info(`Updating event with id ${id}`)
+        const query = byIdQuery(id)
+        const result = await Event.findOneAndUpdate(query, event, { new: true })
+        if (result) {
             return new Response(event)
+        } else {
+            throw new Exception(`Event with id ${id} doesn't exist`)
         }
     }
 
@@ -62,32 +60,27 @@ class EventsService {
         const result = await Event.findOne(query)
         return new Response(result)
     }
-
-    async findAllEmailAliases() {
-        logger.info('Fetching all email aliases in database')
-        const data = await Event.find({}, {
-            emailAlias: true,
-            _id: false
-        })
-            .then(result => result.map(x => x.emailAlias))
-        return new Response(data)
-    }
 }
 
 export default new EventsService()
 
-// TODO: refactore this function
-async function parseAdministrators(otherAdministrators, ownerId) {
+async function removeEventLogo(result) {
+    const fileName = result.logo.split('/img/')[1]
+    await fs.promises.unlink(`${uploadDir}/${fileName}`)
+    logger.info(`Removing file : ${fileName}`)
+}
+
+async function prepareAdministrators(emails, ownerId) {
     const messages = []
     const owner = { userId: ownerId, role: USER_ROLE.OWNER }
-    const administratorsArray = otherAdministrators.includes(',')
-        ? otherAdministrators.split(',')
+    const emailsArray = emails.includes(',')
+        ? emails.split(',')
         : []
-    const administrators = await Promise.all(x(administratorsArray, messages))
+    const administrators = await Promise.all(mapEmailsToUsers(emailsArray, messages))
     return { administrators: [owner, ...administrators], messages }
 }
 
-function x(users, messages) {
+function mapEmailsToUsers(users, messages) {
     return users.map(async email => {
         const result = await User.findOne({ 'google.email': email })
         if (result) {
