@@ -8,9 +8,12 @@ export default function (role = USER_ROLE.ADMIN) {
         const userId = req.user._id
         const result = await Event.findOne(byIdQuery(id))
         if (result) {
-            /* eslint-disable */
+            // eslint-disable-next-line no-unused-expressions
             result.administrators
-                .some(admin => admin.userId === userId.toString() && (admin.role === role || admin.role === USER_ROLE.OWNER))
+                .some(
+                    admin => admin.userId === userId.toString()
+                        && (admin.role === role || admin.role === USER_ROLE.OWNER)
+                )
                 ? next()
                 : res.status(403)
                     .send({ messages: ['Nie masz uprawnień do wykonania tej operacji na tym wydarzeniu'] })

@@ -62,8 +62,6 @@ class EventsService {
     }
 }
 
-export default new EventsService()
-
 async function removeEventLogo(result) {
     const fileName = result.logo.split('/img/')[1]
     await fs.promises.unlink(`${uploadDir}/${fileName}`)
@@ -93,3 +91,5 @@ function mapEmailsToUsers(users, messages) {
         }
     })
 }
+
+export default new EventsService()
