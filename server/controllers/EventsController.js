@@ -1,15 +1,25 @@
 import * as express from 'express'
 import multer from 'multer'
-import resultHandler from '../middlewares/resultHandler'
-import eventsService from '../services/EventsService'
+import { resultHandler, authorization, userPermissions } from 'middlewares'
+import { EventService } from 'services'
+import { USER_ROLE } from 'common/constants'
 
 const router = express.Router()
 const upload = multer({ dest: process.env.UPLOAD_DIR || 'public/uploads' })
 
-router.get('/all/:organisationId', resultHandler(req => eventsService.findAll(req.params.organisationId)))
-router.post('/', upload.single('logo'), resultHandler(req => eventsService.add(req.body, req.file)))
-router.put('/:id', resultHandler(req => eventsService.update(req.params.id, req.body)))
-router.delete('/:id', resultHandler(req => eventsService.delete(req.params.id)))
-router.get('/email-aliases', resultHandler(() => eventsService.findAllEmailAliases()))
+router.get('/', authorization,
+    resultHandler(req => EventService.findAll(req.user)))
+
+router.get('/:id', authorization, userPermissions(USER_ROLE.ADMIN),
+    resultHandler(req => EventService.findById(req.params.id)))
+
+router.post('/', authorization, upload.single('logo'),
+    resultHandler(req => EventService.add(req.body, req.file, req.user)))
+
+router.put('/:id', authorization, userPermissions(USER_ROLE.OWNER),
+    resultHandler(req => EventService.update(req.params.id, req.body)))
+
+router.delete('/:id', authorization, userPermissions(USER_ROLE.OWNER),
+    resultHandler(req => EventService.delete(req.params.id)))
 
 export default router

@@ -1,6 +1,6 @@
 import * as express from 'express'
-import createToken from '../auth/jwtToken'
-import { authentication, authorization, passCallbackUrlToSession } from '../middlewares'
+import { authentication, authorization, passCallbackUrlToSession } from 'middlewares'
+import createToken from 'auth/jwtToken'
 
 const router = express.Router()
 

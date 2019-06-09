@@ -1,11 +1,11 @@
-import log from '../common/logger'
-import Response from '../common/utils/Response'
-import Exception from '../common/utils/Exception'
+import log from 'common/logger'
+import { Response, Exception } from 'common/utils'
 
 // This is simple result handler and will be extend in future
 export default function (func) {
-    return (req, res) => func(req, res)
-        .then(result => {
+    return async (req, res) => {
+        try {
+            const result = await func(req, res)
             if (result instanceof Response) {
                 res.status(result.httpCode)
                     .json({
@@ -15,8 +15,8 @@ export default function (func) {
             } else {
                 res.json(result)
             }
-        })
-        .catch(error => {
+        } catch (error) {
+            log.error(error)
             if (error instanceof Exception) {
                 error.messages.forEach(msg => log.error(msg))
                 res.status(error.httpCode)
@@ -29,11 +29,11 @@ export default function (func) {
                         messages: [error.message]
                     })
             } else {
-                log.error(error)
                 res.status(500)
                     .send({
                         messages: [error.message || '']
                     })
             }
-        })
+        }
+    }
 }

@@ -1,11 +1,21 @@
 import mongoose from 'mongoose'
+import { USER_ROLE } from 'common/constants'
+
+const EventAdministrator = mongoose.Schema({
+    userId: {
+        type: String,
+        required: true
+    },
+    role: {
+        type: String,
+        enum: [USER_ROLE.OWNER, USER_ROLE.ADMIN]
+    }
+})
 
 const Event = mongoose.Schema(
     {
-        organisationId: {
-            type: String,
-            required: true
-        },
+        administrators: [EventAdministrator],
+        forms: Array,
         name: {
             type: String,
             required: true
@@ -13,7 +23,7 @@ const Event = mongoose.Schema(
         emailAlias: {
             type: String,
             required: true,
-            unique: true // TODO: read how it works
+            unique: true
         },
         startDate: {
             type: Date,
@@ -26,6 +36,11 @@ const Event = mongoose.Schema(
         logo: {
             type: String,
             required: true
+        },
+        slug: {
+            type: String,
+            slug: 'name',
+            unique: true
         }
     },
     {

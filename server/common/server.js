@@ -6,9 +6,9 @@ import * as os from 'os'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import session from 'express-session'
-import passport from '../auth/authStrategies'
+import connectDatabase from 'database/mongooseConfig'
+import passport from 'auth/authStrategies'
 import l from './logger'
-import connectDb from '../db/connectDb'
 
 const app = new Express()
 
@@ -42,7 +42,7 @@ export default class ExpressServer {
         // eslint-disable-next-line max-len
         const welcome = p => () => l.info(`up and running in ${process.env.NODE_ENV || 'development'} @: ${os.hostname()} on port: ${p}}`)
         http.createServer(app).listen(port, welcome(port))
-        connectDb(mongoUrl)
+        connectDatabase(mongoUrl)
         return app
     }
 }
