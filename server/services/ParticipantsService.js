@@ -49,18 +49,47 @@ class ParticipantsService {
     }
 
     async add(formId, type, data) {
-        const formModel = await this.getModel(formId, type)
-        const result = await formModel.create(data)
+        const model = await this.getModel(formId, type)
+        const result = await model.create(data)
 
         return new Response(result, 201)
     }
 
     async edit(formId, query, data) {
         const parsedQuery = qs.parse(query)
-        const formModel = await this.getModel(formId, ACCESS_PRIVATE)
-        const result = await formModel.updateMany(parsedQuery, data)
+        const model = await this.getModel(formId, ACCESS_PRIVATE)
+        const result = await model.updateMany(parsedQuery, data)
 
-        return new Response(result, 200)
+        if (result && result.acknowledged) {
+            return new Response(result)
+        } else {
+            throw new Exception(`No Participants were found by given query ${query}`)
+        }
+    }
+
+    async editOne(formId, participantId, data) {
+        const model = await this.getModel(formId, ACCESS_PRIVATE)
+        const result = await model.findOneAndUpdate(
+            { _id: participantId },
+            data,
+            { new: true }
+        )
+        if (result) {
+            return new Response(result)
+        } else {
+            throw new Exception(`Could not found Participant by given id: ${participantId}`)
+        }
+    }
+
+    async remove(formId, participantId) {
+        const formModel = await this.getModel(formId, ACCESS_PRIVATE)
+        const result = await formModel.findOneAndDelete({ _id: participantId })
+
+        if (result) {
+            return new Response(result)
+        } else {
+            throw new Exception(`Could not found Participant by given id: ${participantId}`)
+        }
     }
 
     async getModel(formId, type = ACCESS_PUBLIC) {
