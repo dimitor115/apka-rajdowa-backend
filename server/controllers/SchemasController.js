@@ -1,7 +1,7 @@
 import * as express from 'express'
 import { resultHandler, authorization, userPermissions } from 'middlewares'
 import { SchemasService } from 'services'
-import { USER_ROLE } from '../common/constants'
+import { USER_ROLE } from 'common/constants'
 
 const router = express.Router()
 
