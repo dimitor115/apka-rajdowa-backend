@@ -7,7 +7,7 @@ const router = express.Router()
 router.post('/events/:id/forms/:formId',
     resultHandler(req => ParticipantsService.add(req.params.formId, 'public', req.body)))
 
-router.patch('/events/:id/forms/:formId', authorization, userPermissions(USER_ROLE.ADMIN),
+router.patch('/events/:id/forms/:formId/participants', authorization, userPermissions(USER_ROLE.ADMIN),
     resultHandler(req => ParticipantsService.edit(req.params.formId, req.query, req.body)))
 
 router.patch('/events/:id/forms/:formId/participants/:participantId', authorization, userPermissions(USER_ROLE.ADMIN),

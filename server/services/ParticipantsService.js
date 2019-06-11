@@ -49,16 +49,16 @@ class ParticipantsService {
     }
 
     async add(formId, type, data) {
-        const model = await this.getModel(formId, type)
-        const result = await model.create(data)
+        const formModel = await this.getModel(formId, type)
+        const result = await formModel.create(data)
 
         return new Response(result, 201)
     }
 
     async edit(formId, query, data) {
         const parsedQuery = qs.parse(query)
-        const model = await this.getModel(formId, ACCESS_PRIVATE)
-        const result = await model.updateMany(parsedQuery, data)
+        const formModel = await this.getModel(formId, ACCESS_PRIVATE)
+        const result = await formModel.updateMany(parsedQuery, data)
 
         if (result && result.acknowledged) {
             return new Response(result)
@@ -68,8 +68,8 @@ class ParticipantsService {
     }
 
     async editOne(formId, participantId, data) {
-        const model = await this.getModel(formId, ACCESS_PRIVATE)
-        const result = await model.findOneAndUpdate(
+        const formModel = await this.getModel(formId, ACCESS_PRIVATE)
+        const result = await formModel.findOneAndUpdate(
             { _id: participantId },
             data,
             { new: true }
