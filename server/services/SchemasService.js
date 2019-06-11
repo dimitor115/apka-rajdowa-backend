@@ -10,9 +10,9 @@ const DB_FIELD_KEYS_TO_FRONT_KEYS = {
     type: 'dataType'
 }
 
-const mapKeysToFrontFormat = fieldObj => {
+const mapKeysToFrontFormat = fieldObj => (
     // Mutuje akumulator (xD) bo jest szybsze niż spread operator
-    return Object.keys(fieldObj)
+    Object.keys(fieldObj)
         .reduce((obj, key) => {
             if (DB_FIELD_KEYS_TO_FRONT_KEYS[key]) {
                 obj[DB_FIELD_KEYS_TO_FRONT_KEYS[key]] = fieldObj[key]
@@ -21,17 +21,16 @@ const mapKeysToFrontFormat = fieldObj => {
             }
             return obj
         }, {})
-}
+)
 
-const parseFormSchema = ({ structure, ...rest }) => {
-    return {
-        ...rest,
-        structure: Object.keys(structure).reduce((obj, key) => {
-            obj[key] = mapKeysToFrontFormat(structure[key][0] ? structure[key][0] : structure[key])
-            return obj
-        }, {})
-    }
-}
+const parseFormSchema = ({ structure, ...rest }) => ({
+    ...rest,
+    structure: Object.keys(structure).reduce((obj, key) => {
+        obj[key] = mapKeysToFrontFormat(structure[key][0] ? structure[key][0] : structure[key])
+        return obj
+    }, {})
+})
+
 
 class SchemasService {
     async create(formDetails, schema, eventId) {
