@@ -9,6 +9,10 @@ const EventAdministrator = mongoose.Schema({
     role: {
         type: String,
         enum: [USER_ROLE.OWNER, USER_ROLE.ADMIN]
+    },
+    email: {
+        type: String,
+        required: true
     }
 })
 

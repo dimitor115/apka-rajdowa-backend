@@ -9,7 +9,7 @@ const uploadDir = process.env.UPLOAD_DIR || 'public/uploads'
 class EventsService {
     async add(event, img, user) {
         logger.info(`Creating new event with name ${event.name} by ${user.google.email}`)
-        const parseResult = await prepareAdministrators(event.usersEmails, user._id)
+        const parseResult = await prepareAdministrators(event.usersEmails, user._id, user.google.email)
         event.administrators = parseResult.administrators
         event.forms = []
         event.logo = `/static/img/${img.filename}`
@@ -68,9 +68,9 @@ async function removeEventLogo(result) {
     logger.info(`Removing file : ${fileName}`)
 }
 
-async function prepareAdministrators(emails, ownerId) {
+async function prepareAdministrators(emails, ownerId, ownerEmail) {
     const messages = []
-    const owner = { userId: ownerId, role: USER_ROLE.OWNER }
+    const owner = { userId: ownerId, role: USER_ROLE.OWNER, email: ownerEmail }
     const emailsArray = emails.includes(',')
         ? emails.split(',')
         : []
@@ -82,12 +82,12 @@ function mapEmailsToUsers(users, messages) {
     return users.map(async email => {
         const result = await User.findOne({ 'google.email': email })
         if (result) {
-            return { userId: result._id, role: USER_ROLE.ADMIN }
+            return { userId: result._id, role: USER_ROLE.ADMIN, email }
         } else {
             messages.push(`Użytkownik ${email} będzie miał dostęp do wydarzenia po pierwszym logowaniu.
                  Nie mamy go jeszcze w systemie`)
             // This email will be replace by user id after user first login
-            return { userId: email, role: USER_ROLE.ADMIN }
+            return { userId: email, role: USER_ROLE.ADMIN, email }
         }
     })
 }
