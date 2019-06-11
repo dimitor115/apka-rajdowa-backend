@@ -3,6 +3,36 @@ import { Schema, Event } from 'models'
 import logger from 'common/logger'
 import { Response, Exception, byIdQuery } from 'common/utils'
 
+const DB_FIELD_KEYS_TO_FRONT_KEYS = {
+    name: 'label',
+    htmlType: 'type',
+    enum: 'values',
+    type: 'dataType'
+}
+
+const mapKeysToFrontFormat = fieldObj => {
+    // Mutuje akumulator (xD) bo jest szybsze niż spread operator
+    return Object.keys(fieldObj)
+        .reduce((obj, key) => {
+            if (DB_FIELD_KEYS_TO_FRONT_KEYS[key]) {
+                obj[DB_FIELD_KEYS_TO_FRONT_KEYS[key]] = fieldObj[key]
+            } else {
+                obj[key] = fieldObj[key]
+            }
+            return obj
+        }, {})
+}
+
+const parseFormSchema = ({ structure, ...rest }) => {
+    return {
+        ...rest,
+        structure: Object.keys(structure).reduce((obj, key) => {
+            obj[key] = mapKeysToFrontFormat(structure[key][0] ? structure[key][0] : structure[key])
+            return obj
+        }, {})
+    }
+}
+
 class SchemasService {
     async create(formDetails, schema, eventId) {
         logger.info(`Creating new schema : ${formDetails.name}`)
@@ -10,8 +40,8 @@ class SchemasService {
             name: formDetails.name,
             description: formDetails.description,
             colors: {
-                primary: formDetails.primaryColor,
-                background: formDetails.backgroundColor
+                primary: formDetails.colors && formDetails.colors.primaryColor,
+                background: formDetails.colors && formDetails.colors.backgroundColor
             },
             structure: schema
         })
@@ -24,23 +54,23 @@ class SchemasService {
 
     async getPublic(slug) {
         logger.info(`Fetching public schema : ${slug}`)
-        const schema = await Schema.findOne(byIdQuery(slug))
+        const schema = await Schema.findOne(byIdQuery(slug)).lean()
 
         if (!schema) {
             throw new Exception(`Not found schema by slug: ${slug}`, 404)
         } else {
             schema.structure = this.parseToPublic(schema.structure)
-            return new Response(schema, 200)
+            return new Response(parseFormSchema(schema), 200)
         }
     }
 
     async getPrivate(id) {
         logger.info(`Fetching public schema : ${id}`)
-        const schema = await Schema.findOne({ _id: id })
+        const schema = await Schema.findOne({ _id: id }).lean()
         if (!schema) {
             throw new Exception(`Not found schema by id: ${id}`, 404)
         } else {
-            return new Response(schema, 200)
+            return new Response(parseFormSchema(schema), 200)
         }
     }
 
@@ -55,14 +85,15 @@ class SchemasService {
         }
     }
 
-    parseToPublic(schema) {
-        return Object.keys(schema)
-            .reduce((aggregate, key) => (!schema[key].isHidden
-                ? {
-                    ...aggregate,
-                    [key]: schema[key]
-                }
-                : aggregate
+    parseToPublic(schemaStructure) {
+        return Object.keys(schemaStructure)
+            .reduce((aggregate, key) => (
+                !schemaStructure[key].isHidden
+                    ? {
+                        ...aggregate,
+                        [key]: schemaStructure[key]
+                    }
+                    : aggregate
             ), {})
     }
 }
