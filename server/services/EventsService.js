@@ -87,7 +87,7 @@ function mapEmailsToUsers(users, messages) {
             messages.push(`Użytkownik ${email} będzie miał dostęp do wydarzenia po pierwszym logowaniu.
                  Nie mamy go jeszcze w systemie`)
             // This email will be replace by user id after user first login
-            return { userId: email, role: USER_ROLE.OWNER }
+            return { userId: email, role: USER_ROLE.ADMIN }
         }
     })
 }
