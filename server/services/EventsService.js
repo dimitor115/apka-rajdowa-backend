@@ -1,6 +1,6 @@
 import fs from 'fs'
-import { Event, User } from 'models'
-import { Response, Exception, byIdQuery } from 'common/utils'
+import { Event } from 'models'
+import { Response, Exception, byIdQuery, mapEmailsToUsers } from 'common/utils'
 import logger from 'common/logger'
 import { USER_ROLE } from 'common/constants'
 
@@ -76,20 +76,6 @@ async function prepareAdministrators(emails, ownerId, ownerEmail) {
         : []
     const administrators = await Promise.all(mapEmailsToUsers(emailsArray, messages))
     return { administrators: [owner, ...administrators], messages }
-}
-
-function mapEmailsToUsers(users, messages) {
-    return users.map(async email => {
-        const result = await User.findOne({ 'google.email': email })
-        if (result) {
-            return { userId: result._id, role: USER_ROLE.ADMIN, email }
-        } else {
-            messages.push(`Użytkownik ${email} będzie miał dostęp do wydarzenia po pierwszym logowaniu.
-                 Nie mamy go jeszcze w systemie`)
-            // This email will be replace by user id after user first login
-            return { userId: email, role: USER_ROLE.ADMIN, email }
-        }
-    })
 }
 
 export default new EventsService()
