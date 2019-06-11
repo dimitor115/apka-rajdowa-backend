@@ -7,7 +7,7 @@ const uploadDir = process.env.UPLOAD_DIR || 'public/uploads'
 /*
  This logic isn't extracted to dedicated service because of specific need to use result object
   */
-router.get('/img/:id', (req, res) => {
+router.get('/static/img/:id', (req, res) => {
     const path = `${uploadDir}/${req.params.id}`
     res.setHeader('Content-Type', 'png')
     fs.promises.access(path)

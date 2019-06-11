@@ -60,7 +60,36 @@ class ParticipantsService {
         const formModel = await this.getModel(formId, ACCESS_PRIVATE)
         const result = await formModel.updateMany(parsedQuery, data)
 
-        return new Response(result, 200)
+        if (result && result.acknowledged) {
+            return new Response(result)
+        } else {
+            throw new Exception(`No Participants were found by given query ${query}`)
+        }
+    }
+
+    async editOne(formId, participantId, data) {
+        const formModel = await this.getModel(formId, ACCESS_PRIVATE)
+        const result = await formModel.findOneAndUpdate(
+            { _id: participantId },
+            data,
+            { new: true }
+        )
+        if (result) {
+            return new Response(result)
+        } else {
+            throw new Exception(`Could not found Participant by given id: ${participantId}`)
+        }
+    }
+
+    async remove(formId, participantId) {
+        const formModel = await this.getModel(formId, ACCESS_PRIVATE)
+        const result = await formModel.findOneAndDelete({ _id: participantId })
+
+        if (result) {
+            return new Response(result)
+        } else {
+            throw new Exception(`Could not found Participant by given id: ${participantId}`)
+        }
     }
 
     async getModel(formId, type = ACCESS_PUBLIC) {
