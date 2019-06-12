@@ -1,6 +1,6 @@
 import logger from 'common/logger'
 import { Event } from 'models'
-import { byIdQuery, mapEmailsToUsers } from '../common/utils'
+import { byIdQuery, mapEmailsToUsers, Response } from '../common/utils'
 
 class AdministratorsService {
     async remove(eventId, adminId) {
@@ -10,7 +10,7 @@ class AdministratorsService {
             { $pull: { administrators: { userId: adminId } } },
             { new: true }
         )
-        return result.administrators
+        return new Response(result.administrators)
     }
 
     async changeRole(eventId, adminId, newRole) {
@@ -20,7 +20,7 @@ class AdministratorsService {
             { $set: { 'administrators.$[element].role': newRole } },
             { arrayFilters: [{ 'element.userId': { $eq: adminId } }], new: true }
         )
-        return result.administrators
+        return new Response(result.administrators)
     }
 
     async add(eventId, payload) {
@@ -32,7 +32,7 @@ class AdministratorsService {
             { $push: { administrators: user } },
             { new: true }
         )
-        return result.administrators
+        return new Response(result.administrators, 201, messages)
     }
 }
 
