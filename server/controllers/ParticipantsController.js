@@ -4,7 +4,8 @@ import { resultHandler, authorization, userPermissions } from 'middlewares'
 import { USER_ROLE } from '../common/constants'
 
 const router = express.Router()
-router.post('/events/:id/forms/:formId',
+// W teorii niżej też to można zmienić, bo przecież i tak te forms są unikalne
+router.post('/forms/:formId',
     resultHandler(req => ParticipantsService.add(req.params.formId, 'public', req.body)))
 
 router.patch('/events/:id/forms/:formId/participants', authorization, userPermissions(USER_ROLE.ADMIN),

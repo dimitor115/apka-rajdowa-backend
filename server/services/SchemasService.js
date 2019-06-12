@@ -31,7 +31,6 @@ const parseFormSchema = ({ structure, ...rest }) => ({
     }, {})
 })
 
-
 class SchemasService {
     async create(formDetails, schema, eventId) {
         logger.info(`Creating new schema : ${formDetails.name}`)
