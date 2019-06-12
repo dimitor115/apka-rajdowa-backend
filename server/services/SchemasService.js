@@ -47,7 +47,7 @@ class SchemasService {
             mongoose.connection.createCollection(`form_${newSchema.slug}`),
             this.saveSchemaToEvent(eventId, newSchema.slug)
         ])
-        return new Response({ slug: newSchema.slug }, 201)
+        return new Response(newSchema, 201)
     }
 
     async getPublic(slug) {

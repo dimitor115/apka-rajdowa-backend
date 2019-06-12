@@ -4,8 +4,13 @@ import { resultHandler, authorization, userPermissions } from 'middlewares'
 import { USER_ROLE } from '../common/constants'
 
 const router = express.Router()
-// W teorii niżej też to można zmienić, bo przecież i tak te forms są unikalne
+
+// TODO: ogarnać w przyszłości dla wszystkich routów brak events w routcie
+// Na razie dodany taki route dla formularza zapisowego
 router.post('/forms/:formId',
+    resultHandler(req => ParticipantsService.add(req.params.formId, 'public', req.body)))
+
+router.post('/events/:id/forms/:formId',
     resultHandler(req => ParticipantsService.add(req.params.formId, 'public', req.body)))
 
 router.patch('/events/:id/forms/:formId/participants', authorization, userPermissions(USER_ROLE.ADMIN),

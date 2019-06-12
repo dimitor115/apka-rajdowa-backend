@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import qs from 'qs'
 import { Schema } from 'models'
-import { Response, Exception, byIdQuery } from 'common/utils'
+import { Response, Exception } from 'common/utils'
 import SchemasService from './SchemasService'
 
 const ACCESS_PRIVATE = 'private'
@@ -103,7 +103,7 @@ class ParticipantsService {
                 return mongoose.model(schemaName)
             }
 
-            const schema = await Schema.findOne(byIdQuery(formSlug))
+            const schema = await Schema.findOne({ slug: formSlug })
 
             if (type === ACCESS_PUBLIC) {
                 schema.structure = await SchemasService.parseToPublic(schema.structure)
