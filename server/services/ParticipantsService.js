@@ -9,9 +9,9 @@ const ACCESS_PUBLIC = 'public'
 const RANGES_ACCESS = [ACCESS_PRIVATE, ACCESS_PUBLIC]
 
 class ParticipantsService {
-    async find(formId, query = '') {
-        if (!this.checkCollectionExists(formId)) {
-            throw new Exception(`Not found collection form_${formId}`, 404)
+    async find(formSlug, query = '') {
+        if (!this.checkCollectionExists(formSlug)) {
+            throw new Exception(`Not found collection form_${formSlug}`, 404)
         } else {
             const parsedQuery = qs.parse(query)
             const page = parseInt(parsedQuery.page, 10) || parseInt(process.env.DEFAULT_PAGE, 10) || 1
@@ -30,14 +30,14 @@ class ParticipantsService {
                     ...aggregate, [key]: parseInt(parsedQuery.sort[key], 10)
                 }), {}) : {}
 
-            const promiseList = mongoose.connection.collection(`form_${formId}`)
+            const promiseList = mongoose.connection.collection(`form_${formSlug}`)
                 .find(parsedQuery.filter, fields)
                 .skip((page - 1) * count)
                 .limit(count)
                 .sort(sort)
                 .toArray()
 
-            const promiseTotal = mongoose.connection.collection(`form_${formId}`)
+            const promiseTotal = mongoose.connection.collection(`form_${formSlug}`)
                 .countDocuments(parsedQuery.filter)
 
             const [list, total] = [await promiseList, await promiseTotal]
@@ -48,16 +48,16 @@ class ParticipantsService {
         }
     }
 
-    async add(formId, type, data) {
-        const formModel = await this.getModel(formId, type)
+    async add(formSlug, type, data) {
+        const formModel = await this.getModel(formSlug, type)
         const result = await formModel.create(data)
 
         return new Response(result, 201)
     }
 
-    async edit(formId, query, data) {
+    async edit(formSlug, query, data) {
         const parsedQuery = qs.parse(query)
-        const formModel = await this.getModel(formId, ACCESS_PRIVATE)
+        const formModel = await this.getModel(formSlug, ACCESS_PRIVATE)
         const result = await formModel.updateMany(parsedQuery, data)
 
         if (result && result.acknowledged) {
@@ -92,18 +92,18 @@ class ParticipantsService {
         }
     }
 
-    async getModel(formId, type = ACCESS_PUBLIC) {
-        if (!this.checkCollectionExists(formId)) {
-            throw new Exception(`Not found collection form_${formId}`, 404)
+    async getModel(formSlug, type = ACCESS_PUBLIC) {
+        if (!this.checkCollectionExists(formSlug)) {
+            throw new Exception(`Not found collection form_${formSlug}`, 404)
         } else if (!RANGES_ACCESS.includes(type)) {
             throw (new Exception(`Error type range access. Available options: ${RANGES_ACCESS.join(', ')}`))
         } else {
-            const schemaName = `form_${formId}_${type}`
+            const schemaName = `form_${formSlug}_${type}`
             if (mongoose.modelNames().includes(schemaName)) {
                 return mongoose.model(schemaName)
             }
 
-            const schema = await Schema.findOne({ _id: formId })
+            const schema = await Schema.findOne({ slug: formSlug })
 
             if (type === ACCESS_PUBLIC) {
                 schema.structure = await SchemasService.parseToPublic(schema.structure)
@@ -111,16 +111,16 @@ class ParticipantsService {
 
             const formSchema = mongoose.Schema(schema.structure, {
                 versionKey: false,
-                collection: `form_${formId}`
+                collection: `form_${formSlug}`
             })
             return mongoose.model(schemaName, formSchema)
         }
     }
 
-    async checkCollectionExists(formId) {
+    async checkCollectionExists(formSlug) {
         const collections = await mongoose.connection.db.listCollections().toArray()
 
-        return collections.some(collection => collection.name === `form_${formId}`)
+        return collections.some(collection => collection.name === `form_${formSlug}`)
     }
 }
 

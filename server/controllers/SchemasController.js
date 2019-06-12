@@ -6,7 +6,7 @@ import { USER_ROLE } from 'common/constants'
 const router = express.Router()
 
 router.post('/events/:id/schema', authorization, userPermissions(USER_ROLE.ADMIN),
-    resultHandler(req => SchemasService.create(req.body.name, req.body.schema, req.params.id)))
+    resultHandler(req => SchemasService.create(req.body.details, req.body.schema, req.params.id)))
 
 router.get('/schemas/:id/public', resultHandler(req => SchemasService.getPublic(req.params.id)))
 
