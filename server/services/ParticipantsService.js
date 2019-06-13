@@ -19,9 +19,9 @@ class ParticipantsService {
 
             const filters = Object.keys(parsedQuery.filters || {}).reduce((obj, key) => ({
                 ...obj,
-                [key]: {
-                    $in: parsedQuery.filters[key]
-                }
+                [key]: parsedQuery.filters[key].length > 1
+                    ? { $in: parsedQuery.filters[key] }
+                    : { $regex: `^${parsedQuery.filters[key][0]}`, $options: 'i' }
             }), {})
 
             const fields = {
