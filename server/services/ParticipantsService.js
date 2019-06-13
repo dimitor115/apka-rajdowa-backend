@@ -17,6 +17,13 @@ class ParticipantsService {
             const page = parseInt(parsedQuery.page, 10) || parseInt(process.env.DEFAULT_PAGE, 10) || 1
             const count = parseInt(parsedQuery.count, 10) || parseInt(process.env.DEFAULT_PER_PAGE, 10) || 50
 
+            const filters = Object.keys(parsedQuery.filters || {}).reduce((obj, key) => ({
+                ...obj,
+                [key]: {
+                    $in: parsedQuery.filters[key]
+                }
+            }), {})
+
             const fields = {
                 projection: parsedQuery.fields
                     ? Object.keys(parsedQuery.fields).reduce((aggregate, key) => ({
@@ -31,14 +38,14 @@ class ParticipantsService {
                 }), {}) : {}
 
             const promiseList = mongoose.connection.collection(`form_${formSlug}`)
-                .find(parsedQuery.filter, fields)
+                .find(filters, fields)
                 .skip((page - 1) * count)
                 .limit(count)
                 .sort(sort)
                 .toArray()
 
             const promiseTotal = mongoose.connection.collection(`form_${formSlug}`)
-                .countDocuments(parsedQuery.filter)
+                .countDocuments(filters)
 
             const [list, total] = [await promiseList, await promiseTotal]
             const pages = list.length ? Math.trunc(total / count) || 1 : 0
