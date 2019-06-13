@@ -63,10 +63,10 @@ class SchemasService {
     }
 
     async getPrivate(slug) {
-        logger.info(`Fetching public schema : ${slug}`)
+        logger.info(`Fetching private schema : ${slug}`)
         const schema = await Schema.findOne(byIdQuery(slug)).lean()
         if (!schema) {
-            throw new Exception(`Not found schema by id: ${slug}`, 404)
+            throw new Exception(`Not found schema by slug: ${slug}`, 404)
         } else {
             return new Response(parseFormSchema(schema), 200)
         }

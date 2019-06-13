@@ -10,7 +10,7 @@ router.post('/events/:id/schema', authorization, userPermissions(USER_ROLE.ADMIN
 
 router.get('/schemas/:id/public', resultHandler(req => SchemasService.getPublic(req.params.id)))
 
-router.get('/schemas/:id/private', authorization, userPermissions(USER_ROLE.ADMIN),
+router.get('/schemas/:id/private', authorization,
     resultHandler(req => SchemasService.getPrivate(req.params.id)))
 
 export default router
