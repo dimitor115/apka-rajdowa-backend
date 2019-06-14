@@ -1,6 +1,8 @@
 import fs from 'fs'
 import { Event } from 'models'
-import { Response, Exception, byIdQuery, mapEmailsToUsers } from 'common/utils'
+import {
+    Response, Exception, byIdQuery, mapEmailsToUsers
+} from 'common/utils'
 import logger from 'common/logger'
 import { USER_ROLE } from 'common/constants'
 
