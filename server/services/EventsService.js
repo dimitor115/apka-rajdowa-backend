@@ -32,7 +32,7 @@ class EventsService {
     async update(id, event) {
         logger.info(`Updating event with id ${id}`)
         const query = byIdQuery(id)
-        const result = await Event.findOneAndUpdate(query, event, { new: true })
+        const result = await Event.findOneAndUpdate(query, { $set: event }, { new: true })
         if (result) {
             return new Response(event)
         } else {

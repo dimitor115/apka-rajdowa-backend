@@ -1,6 +1,8 @@
 import logger from 'common/logger'
 import { Event } from 'models'
-import { byIdQuery, mapEmailsToUsers, Response } from '../common/utils'
+import {
+    byIdQuery, mapEmailsToUsers, Response, Exception
+} from '../common/utils'
 
 class AdministratorsService {
     async remove(eventId, adminId) {
@@ -10,7 +12,12 @@ class AdministratorsService {
             { $pull: { administrators: { userId: adminId } } },
             { new: true }
         )
-        return new Response(result.administrators)
+
+        if (result) {
+            return new Response(result.administrators)
+        } else {
+            throw new Exception(`Admin with id: ${adminId} doesn't exist`)
+        }
     }
 
     async changeRole(eventId, adminId, newRole) {
@@ -20,7 +27,11 @@ class AdministratorsService {
             { $set: { 'administrators.$[element].role': newRole } },
             { arrayFilters: [{ 'element.userId': { $eq: adminId } }], new: true }
         )
-        return new Response(result.administrators)
+        if (result) {
+            return new Response(result.administrators)
+        } else {
+            throw new Exception(`Admin with id: ${adminId} doesn't exist`)
+        }
     }
 
     async add(eventId, payload) {
@@ -32,7 +43,11 @@ class AdministratorsService {
             { $push: { administrators: user } },
             { new: true }
         )
-        return new Response(result.administrators, 201, messages)
+        if (result) {
+            return new Response(result.administrators, 201, messages)
+        } else {
+            throw new Exception(`Error during creating new admin for event: ${eventId}`)
+        }
     }
 }
 
