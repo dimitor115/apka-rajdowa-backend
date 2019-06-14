@@ -8,6 +8,15 @@ const ACCESS_PRIVATE = 'private'
 const ACCESS_PUBLIC = 'public'
 const RANGES_ACCESS = [ACCESS_PRIVATE, ACCESS_PUBLIC]
 
+const filtersQueryStringToMongoQuery = filters => (
+    Object.keys(filters || {}).reduce((obj, key) => ({
+        ...obj,
+        [key]: filters[key].length > 1
+            ? { $in: filters[key] }
+            : { $regex: `^${filters[key][0]}`, $options: 'i' }
+    }), {})
+)
+
 class ParticipantsService {
     async find(formSlug, query = '') {
         if (!this.checkCollectionExists(formSlug)) {
@@ -17,12 +26,7 @@ class ParticipantsService {
             const page = parseInt(parsedQuery.page, 10) || parseInt(process.env.DEFAULT_PAGE, 10) || 1
             const count = parseInt(parsedQuery.count, 10) || parseInt(process.env.DEFAULT_PER_PAGE, 10) || 50
 
-            const filters = Object.keys(parsedQuery.filters || {}).reduce((obj, key) => ({
-                ...obj,
-                [key]: parsedQuery.filters[key].length > 1
-                    ? { $in: parsedQuery.filters[key] }
-                    : { $regex: `^${parsedQuery.filters[key][0]}`, $options: 'i' }
-            }), {})
+            const filters = filtersQueryStringToMongoQuery(parsedQuery.filters)
 
             const fields = {
                 projection: parsedQuery.fields
@@ -62,15 +66,17 @@ class ParticipantsService {
         return new Response(result, 201)
     }
 
-    async edit(formSlug, query, data) {
+    async editFiltered(formSlug, query, data) {
         const parsedQuery = qs.parse(query)
         const formModel = await this.getModel(formSlug, ACCESS_PRIVATE)
-        const result = await formModel.updateMany(parsedQuery, data)
+        const filters = filtersQueryStringToMongoQuery(parsedQuery.filters)
+
+        const result = await formModel.updateMany(filters, { $set: { ...data } })
 
         if (result && result.acknowledged) {
             return new Response(result)
         } else {
-            throw new Exception(`No Participants were found by given query ${query}`)
+            throw new Exception(`No Participants were found by given query ${JSON.stringify(query)}`)
         }
     }
 

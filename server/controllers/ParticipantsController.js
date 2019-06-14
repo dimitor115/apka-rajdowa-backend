@@ -14,7 +14,7 @@ router.post('/events/:id/forms/:formId',
     resultHandler(req => ParticipantsService.add(req.params.formId, 'public', req.body)))
 
 router.patch('/events/:id/forms/:formId/participants', authorization, userPermissions(USER_ROLE.ADMIN),
-    resultHandler(req => ParticipantsService.edit(req.params.formId, req.query, req.body)))
+    resultHandler(req => ParticipantsService.editFiltered(req.params.formId, req.query, req.body)))
 
 router.patch('/events/:id/forms/:formId/participants/:participantId', authorization, userPermissions(USER_ROLE.ADMIN),
     resultHandler(req => ParticipantsService.editOne(req.params.formId, req.params.participantId, req.body)))
