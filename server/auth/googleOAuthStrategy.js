@@ -1,6 +1,6 @@
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
 import log from 'common/logger'
-import { User } from 'models'
+import { User, Event } from 'models'
 
 export default new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
@@ -22,6 +22,7 @@ export default new GoogleStrategy({
                 return User.create(newUser)
                     .then(createdUser => {
                         log.info(`Authentication - user created - ${newUser.google.googleId}`)
+                        replaceEmailWithIdForAllUsersEvents(createdUser)
                         callback(null, createdUser, 201)
                     })
                     .catch(err => {
@@ -37,3 +38,13 @@ export default new GoogleStrategy({
             callback(err, null, 'Unauthenticated')
         })
 })
+
+async function replaceEmailWithIdForAllUsersEvents(user) {
+    const { email } = user.google
+    log.info(`Replacing email (${email}) with user id for all events where user is admin`)
+    return Event.updateMany(
+        { 'administrators.userId': email },
+        { $set: { 'administrators.$[element].userId': user._id } },
+        { arrayFilters: [{ 'element.userId': { $eq: email } }] }
+    )
+}
