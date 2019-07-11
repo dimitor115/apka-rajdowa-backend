@@ -60,7 +60,7 @@ class SchemasService {
             { $push: { forms: schemaSlug } }
         )
         if (!result) {
-            throw Exception(`Nie ma wydarzenia o takim id ${eventId}`)
+            throw Exception(`There is no event with given id : ${eventId}`)
         }
     }
 }

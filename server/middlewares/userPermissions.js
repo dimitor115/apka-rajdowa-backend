@@ -16,10 +16,10 @@ export default function (role = USER_ROLE.ADMIN) {
                 )
                 ? next()
                 : res.status(403)
-                    .send({ messages: ['Nie masz uprawnień do wykonania tej operacji na tym wydarzeniu'] })
+                    .send({ messages: ['You don\'t have permision to performe this operation on current event'] })
         } else {
             res.status(404)
-                .send({ messages: [`Nie ma w systemie wydarzenia : ${id}`] })
+                .send({ messages: [`There is no event with given id: ${id}`] })
         }
     }
 }
