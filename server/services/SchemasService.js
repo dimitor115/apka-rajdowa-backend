@@ -10,27 +10,6 @@ const DB_FIELD_KEYS_TO_FRONT_KEYS = {
     type: 'dataType'
 }
 
-const mapKeysToFrontFormat = fieldObj => (
-    // Mutuje akumulator (xD) bo jest szybsze niż spread operator
-    Object.keys(fieldObj)
-        .reduce((obj, key) => {
-            if (DB_FIELD_KEYS_TO_FRONT_KEYS[key]) {
-                obj[DB_FIELD_KEYS_TO_FRONT_KEYS[key]] = fieldObj[key]
-            } else {
-                obj[key] = fieldObj[key]
-            }
-            return obj
-        }, {})
-)
-
-const parseFormSchema = ({ structure, ...rest }) => ({
-    ...rest,
-    structure: Object.keys(structure).reduce((obj, key) => {
-        obj[key] = mapKeysToFrontFormat(structure[key][0] ? structure[key][0] : structure[key])
-        return obj
-    }, {})
-})
-
 class SchemasService {
     async create(formDetails, schema, eventId) {
         logger.info(`Creating new schema : ${formDetails.name}`)
@@ -45,7 +24,7 @@ class SchemasService {
         })
         await Promise.all([
             mongoose.connection.createCollection(`form_${newSchema.slug}`),
-            this.saveSchemaToEvent(eventId, newSchema.slug)
+            this._saveSchemaToEvent(eventId, newSchema.slug)
         ])
         return new Response(newSchema, 201)
     }
@@ -57,23 +36,25 @@ class SchemasService {
         if (!schema) {
             throw new Exception(`Not found schema by slug: ${slug}`, 404)
         } else {
-            schema.structure = this.parseToPublic(schema.structure)
-            return new Response(parseFormSchema(schema), 200)
+            schema.structure = _parseToPublic(schema.structure)
+            return new Response(_parseFormSchema(schema), 200)
         }
     }
 
     async getPrivate(slug) {
         logger.info(`Fetching private schema : ${slug}`)
         const schema = await Schema.findOne(byIdQuery(slug)).lean()
+
         if (!schema) {
             throw new Exception(`Not found schema by slug: ${slug}`, 404)
         } else {
-            return new Response(parseFormSchema(schema), 200)
+            return new Response(_parseFormSchema(schema), 200)
         }
     }
 
-    async saveSchemaToEvent(eventId, schemaSlug) {
+    async _saveSchemaToEvent(eventId, schemaSlug) {
         logger.info(`Saving schema (${schemaSlug}) to event : ${eventId}`)
+
         const result = await Event.findOneAndUpdate(
             byIdQuery(eventId),
             { $push: { forms: schemaSlug } }
@@ -82,18 +63,41 @@ class SchemasService {
             throw Exception(`Nie ma wydarzenia o takim id ${eventId}`)
         }
     }
+}
 
-    parseToPublic(schemaStructure) {
-        return Object.keys(schemaStructure)
-            .reduce((aggregate, key) => (
-                !schemaStructure[key].isHidden
-                    ? {
-                        ...aggregate,
-                        [key]: schemaStructure[key]
-                    }
-                    : aggregate
-            ), {})
+function _parseToPublic(schemaStructure) {
+    return Object.keys(schemaStructure)
+        .reduce((aggregate, key) => (
+            !schemaStructure[key].isHidden
+                ? {
+                    ...aggregate,
+                    [key]: schemaStructure[key]
+                }
+                : aggregate
+        ), {})
+}
+
+function _parseFormSchema({ structure, ...rest }) {
+    return {
+        ...rest,
+        structure: Object.keys(structure)
+            .reduce((obj, key) => {
+                obj[key] = _mapKeysToFrontFormat(structure[key][0] ? structure[key][0] : structure[key])
+                return obj
+            }, {})
     }
+}
+
+function _mapKeysToFrontFormat(fieldObj) {
+    return Object.keys(fieldObj)
+        .reduce((obj, key) => {
+            if (DB_FIELD_KEYS_TO_FRONT_KEYS[key]) {
+                obj[DB_FIELD_KEYS_TO_FRONT_KEYS[key]] = fieldObj[key]
+            } else {
+                obj[key] = fieldObj[key]
+            }
+            return obj
+        }, {})
 }
 
 export default new SchemasService()

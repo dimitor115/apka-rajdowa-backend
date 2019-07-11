@@ -17,37 +17,21 @@ class ParticipantsService {
             const page = parseInt(parsedQuery.page, 10) || parseInt(process.env.DEFAULT_PAGE, 10) || 1
             const count = parseInt(parsedQuery.count, 10) || parseInt(process.env.DEFAULT_PER_PAGE, 10) || 50
 
-            const filters = Object.keys(parsedQuery.filters || {}).reduce((obj, key) => ({
-                ...obj,
-                [key]: parsedQuery.filters[key].length > 1
-                    ? { $in: parsedQuery.filters[key] }
-                    : { $regex: `^${parsedQuery.filters[key][0]}`, $options: 'i' }
-            }), {})
+            const filters = _prepareFilters(parsedQuery)
+            const fields = _prepareFields(parsedQuery)
+            const sort = _prepareSortConditions(parsedQuery)
 
-            const fields = {
-                projection: parsedQuery.fields
-                    ? Object.keys(parsedQuery.fields).reduce((aggregate, key) => ({
-                        ...aggregate, [key]: parseInt(parsedQuery.fields[key], 10)
-                    }), {})
-                    : {}
-            }
-
-            const sort = parsedQuery.sort ? Object.keys(parsedQuery.sort)
-                .reduce((aggregate, key) => ({
-                    ...aggregate, [key]: parseInt(parsedQuery.sort[key], 10)
-                }), {}) : {}
-
-            const promiseList = mongoose.connection.collection(`form_${formSlug}`)
+            const listPromise = mongoose.connection.collection(`form_${formSlug}`)
                 .find(filters, fields)
                 .skip((page - 1) * count)
                 .limit(count)
                 .sort(sort)
                 .toArray()
 
-            const promiseTotal = mongoose.connection.collection(`form_${formSlug}`)
+            const totalPromise = mongoose.connection.collection(`form_${formSlug}`)
                 .countDocuments(filters)
 
-            const [list, total] = [await promiseList, await promiseTotal]
+            const [list, total] = [await listPromise, await totalPromise]
             const pages = list.length ? Math.trunc(total / count) || 1 : 0
             const meta = { total, pages, current_page: page }
 
@@ -81,6 +65,7 @@ class ParticipantsService {
             data,
             { new: true }
         )
+
         if (result) {
             return new Response(result)
         } else {
@@ -100,7 +85,7 @@ class ParticipantsService {
     }
 
     async getModel(formSlug, type = ACCESS_PUBLIC) {
-        if (!this.checkCollectionExists(formSlug)) {
+        if (!await _checkCollectionExists(formSlug)) {
             throw new Exception(`Not found collection form_${formSlug}`, 404)
         } else if (!RANGES_ACCESS.includes(type)) {
             throw (new Exception(`Error type range access. Available options: ${RANGES_ACCESS.join(', ')}`))
@@ -120,15 +105,41 @@ class ParticipantsService {
                 versionKey: false,
                 collection: `form_${formSlug}`
             })
+
             return mongoose.model(schemaName, formSchema)
         }
     }
+}
 
-    async checkCollectionExists(formSlug) {
-        const collections = await mongoose.connection.db.listCollections().toArray()
+async function _checkCollectionExists(formSlug) {
+    const collections = await mongoose.connection.db.listCollections().toArray()
+    return collections.some(collection => collection.name === `form_${formSlug}`)
+}
 
-        return collections.some(collection => collection.name === `form_${formSlug}`)
+function _prepareSortConditions(parsedQuery) {
+    return parsedQuery.sort ? Object.keys(parsedQuery.sort)
+        .reduce((aggregate, key) => ({
+            ...aggregate, [key]: parseInt(parsedQuery.sort[key], 10)
+        }), {}) : {}
+}
+
+function _prepareFields(parsedQuery) {
+    return {
+        projection: parsedQuery.fields
+            ? Object.keys(parsedQuery.fields).reduce((aggregate, key) => ({
+                ...aggregate, [key]: parseInt(parsedQuery.fields[key], 10)
+            }), {})
+            : {}
     }
+}
+
+function _prepareFilters(parsedQuery) {
+    return Object.keys(parsedQuery.filters || {}).reduce((obj, key) => ({
+        ...obj,
+        [key]: parsedQuery.filters[key].length > 1
+            ? { $in: parsedQuery.filters[key] }
+            : { $regex: `^${parsedQuery.filters[key][0]}`, $options: 'i' }
+    }), {})
 }
 
 export default new ParticipantsService()

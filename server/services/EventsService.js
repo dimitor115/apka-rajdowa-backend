@@ -11,20 +11,25 @@ const uploadDir = process.env.UPLOAD_DIR || 'public/uploads'
 class EventsService {
     async add(event, img, user) {
         logger.info(`Creating new event with name ${event.name} by ${user.google.email}`)
-        const parseResult = await prepareAdministrators(event.usersEmails, user._id, user.google.email)
-        event.administrators = parseResult.administrators
-        event.forms = []
-        event.logo = `/static/img/${img.filename}`
-        const result = await Event.create(event)
-        return new Response(result, 201, parseResult.messages)
+        const { administrators, messages } = await _prepareAdministrators(event.usersEmails, user._id, user.google.email)
+        const parsedEvent = {
+            ...event,
+            administrators,
+            forms: [],
+            logo: `/static/img/${img.filename}`
+        }
+        const result = await Event.create(parsedEvent)
+
+        return new Response(result, 201, messages)
     }
 
     async delete(id) {
         logger.info(`Deleting event : ${id}`)
         const query = byIdQuery(id)
         const result = await Event.findOneAndDelete(query)
+
         if (result) {
-            await removeEventLogo(result)
+            await _removeEventLogo(result)
             return new Response(result)
         } else {
             throw new Exception(`Event with id ${id} doesn't exist`)
@@ -35,6 +40,7 @@ class EventsService {
         logger.info(`Updating event with id ${id}`)
         const query = byIdQuery(id)
         const result = await Event.findOneAndUpdate(query, { $set: event }, { new: true })
+
         if (result) {
             return new Response(event)
         } else {
@@ -53,6 +59,7 @@ class EventsService {
                 emailAlias: false
             }
         )
+
         return new Response(events)
     }
 
@@ -60,17 +67,18 @@ class EventsService {
         logger.info(`Fetching event ${id} details`)
         const query = byIdQuery(id)
         const result = await Event.findOne(query)
+
         return new Response(result)
     }
 }
 
-async function removeEventLogo(result) {
+async function _removeEventLogo(result) {
     const fileName = result.logo.split('/img/')[1]
     await fs.promises.unlink(`${uploadDir}/${fileName}`)
     logger.info(`Removing file : ${fileName}`)
 }
 
-async function prepareAdministrators(emails, ownerId, ownerEmail) {
+async function _prepareAdministrators(emails, ownerId, ownerEmail) {
     const messages = []
     const owner = { userId: ownerId, role: USER_ROLE.OWNER, email: ownerEmail }
     const emailsArray = emails.includes(',')

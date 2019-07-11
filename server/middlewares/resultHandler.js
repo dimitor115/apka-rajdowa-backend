@@ -7,11 +7,9 @@ export default function (func) {
         try {
             const result = await func(req, res)
             if (result instanceof Response) {
-                res.status(result.httpCode)
-                    .json({
-                        data: result.data,
-                        messages: result.messages
-                    })
+                const { httpCode, data, messages } = result
+                res.status(httpCode)
+                    .json({ data, messages })
             } else {
                 res.json(result)
             }
